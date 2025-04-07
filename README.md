@@ -24,7 +24,7 @@ data_daily.npy (data_sport.npydata_health.npy)
   ecg: timestamp,ecg
   ecg_hr: timestamp,ecg_hr
   ecg_rr: timestamp,ecg_rr
-  Samsung: timestamp,hr
+  samsung: timestamp,hr
   oura: start, end, hr
   BP: start, end,sys,dia
   Experiment: Health, Daily, Sport
