@@ -1,7 +1,8 @@
+```
 {
     "exp_name": "fft",
-    "mode": "train", 
-    "test_participants": "0-8",
+    "mode": "test",  # ["train", "test", "5fold"]
+    "test_participants": "0-8",  # str: "x1-x2" or list:[x1, x2, ...]
     "device": "cpu",
     "csv_path": "csv/fft/fft.csv",
     "img_path": "img/fft",
@@ -80,3 +81,4 @@
         }
     }
 }
+```

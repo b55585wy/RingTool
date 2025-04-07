@@ -1,3 +1,4 @@
 data/
 ckpt/
 test.py
+config/*.json
