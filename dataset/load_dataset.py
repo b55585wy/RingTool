@@ -2,74 +2,92 @@ from typing import Dict, List
 import torch
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
+import pandas as pd
+import os
+import pickle
+import numpy as np
+import random
+
+def load_dataset(config: Dict, raw_data: pd.DataFrame, task: str="hr", channels: List=None):
+    """
+    Load the dataset for the specified task.
+    Args:
+        config (Dict): Configuration dictionary.
+        raw_data (pd.DataFrame): Raw data DataFrame.
+        task (str): Task name. Default is "hr".
+        channels (List): List of channels to load. Default is None.
+    Returns:
+        List: List of tuples containing signal tensors and labels.
+    """
+    if task not in ['hr', 'bvp_hr', 'bvp_sdnn', 'bvp_rmssd',
+       'bvp_nn50', 'bvp_pnn50', 'resp_rr', 'spo2', 'samsung_hr', 'oura_hr',
+       'BP_sys', 'BP_dia']:
+        raise ValueError("Invalid task. Choose from 'hr', 'bvp_hr', 'bvp_sdnn', 'bvp_rmssd', 'bvp_nn50', 'bvp_pnn50', 'resp_rr', 'spo2', 'samsung_hr', 'oura_hr', 'BP_sys', 'BP_dia'")
+        return [(torch.randn(201, 1), torch.randn(1))]
+    # Load Data
+    return LoadDataset(config, raw_data, task=task, channels=channels)
+    
 
 
-def load_dataset(config: Dict, raw_data: Dict, task: str="hr"):
-    if task not in ["hr", "bp", "rr", "spo2"]:
-        raise ValueError("Invalid task. Choose 'hr', 'bp', 'rr', or 'spo2'.")
-    if task == "hr":
-        return HeartrateDataset(config, raw_data)
-    # randomize one sample with the shape of (77,30)
-    return [(torch.randn(201, 1), torch.randn(1))]
-
-
-
-class HeartrateDataset(Dataset):
-    def __init__(self, config: Dict, raw_data: List):
+class LoadDataset(Dataset):
+    def __init__(self, config: Dict, raw_data: List, channels: List, task: str="hr"):
+        self.task = task
         self.raw_data = raw_data
         self.config = config
+        self.channels = channels
         self.load_data()
         # import ipdb; ipdb.set_trace()
     
         
     def load_data(self):
         self.data = []
-        window_size = 10 # second
-        for participant in tqdm(self.raw_data):
-            if len(participant['ring1']) == 0 or len(participant['hr']) == 0:
+        target_length = self.config.get('target_length', 3000)  # Default target length is 3000
+        min_length = int(target_length * 0.8)  # 80% of target length
+        
+        for i in tqdm(range(len(self.raw_data))):
+            # Load the data in channels
+            channel_tensors = []
+            skip_sample = False
+            
+            # Process each channel separately
+            for channel in self.channels:
+            # Get the numpy array for this channel
+                channel_data = self.raw_data.iloc[i][channel]
+            
+                # Check if length is less than minimum required (80% of target)
+                if len(channel_data) < min_length:
+                    skip_sample = True
+                    break
+                    
+                # Handle length:
+                if len(channel_data) > target_length:
+                    # If longer than target, truncate
+                    channel_data = channel_data[:target_length]
+                elif len(channel_data) < target_length:
+                    # If shorter than target, pad with zeros
+                    padding = np.zeros(target_length - len(channel_data))
+                    channel_data = np.concatenate([channel_data, padding])
+                    
+                # Convert to tensor (adding a channel dimension)
+                channel_tensor = torch.tensor(channel_data, dtype=torch.float32).unsqueeze(1)
+            channel_tensors.append(channel_tensor)
+            
+            # Skip this sample if any channel was too short
+            if skip_sample:
                 continue
-            ring1_timestamps = participant['ring1']['timestamp'].tolist()
-            ring1_irs = participant['ring1']['ir'].tolist()
-            hr_windows = [
-                (timestamp - window_size // 2, timestamp + window_size // 2)
-                for timestamp in participant['hr']['timestamp']
-            ]
-            ring1_idx = 0
-            for idx, gt in participant['hr'].iterrows():
-                timestamp = gt['timestamp']
-                hr = gt['hr']
-                start_t, end_t = hr_windows[idx]
-                # Move the ring1_idx to the start of the window
-                while ring1_idx < len(ring1_timestamps) and ring1_timestamps[ring1_idx] < start_t:
-                    ring1_idx += 1
-                # Collect the ir values within the window
-                ir_window = []
-                while ring1_idx < len(ring1_timestamps) and ring1_timestamps[ring1_idx] <= end_t:
-                    ir_window.append(ring1_irs[ring1_idx])
-                    ring1_idx += 1
-                # Reset ring1_idx for the next window
-                ring1_idx -= len(ir_window)
-                if len(ir_window) < 990:
-                    continue
-                # Pad or truncate the ir_window to 1000 samples
-                if len(ir_window) > 1000:
-                    ir_window = ir_window[:1000]
-                else:
-                    ir_window += [0] * (1000 - len(ir_window))
-                hr_tensor = torch.tensor(hr, dtype=torch.float32)
-                ir_tensor = torch.tensor(ir_window, dtype=torch.float32)
-                ir_tensor = ir_tensor.unsqueeze(-1)
-                self.data.append((ir_tensor, hr_tensor))
-            # for idx, gt in participant['hr'].iterrows():
-                # timestamp = gt['timestamp']
-                # hr = gt['hr']
-                # start_t = timestamp - window_size // 2
-                # end_t = timestamp + window_size // 2
-                # window_data = participant['ring1'][(participant['ring1'] >= start_t) & (participant['ring1'] <= end_t)]
-                # ir = window_data['ir'].tolist()
-                # hr = torch.tensor(hr, dtype=torch.float32)
-                # ir = torch.tensor(ir, dtype=torch.float32)
-                # self.data.append((ir, hr))
+            
+            # Concatenate all channel tensors along dimension 1
+            signal_tensor = torch.cat(channel_tensors, dim=1)
+            
+            # Load the label
+            label = self.raw_data.iloc[i][self.task]
+            # Skip if label is None
+            if label is None:
+                continue
+            label_tensor = torch.tensor(float(label), dtype=torch.float32)
+            # Add the data to the list
+            self.data.append((signal_tensor, label_tensor))
+        print(f"Loaded {len(self.data)} samples for task {self.task} with channels {self.channels}")
 
     def __len__(self):
         return len(self.data)
@@ -77,3 +95,35 @@ class HeartrateDataset(Dataset):
     def __getitem__(self, idx):
         # Assuming each item in the dataset is a tuple (input, label)
         return self.data[idx]
+
+
+if __name__ == "__main__":
+    # Example usage
+    '''
+    -rings
+        -subject_ring1_processed.pkl    :DataFrame
+        -subject_ring2_processed.pkl    :DataFrame
+    
+            -id,start,end,fs,ir-raw,ir-standardized,ir-filtered,ir-difference,ir-welch,red-raw,red-standardized,red-filtered,red-difference,red-welch,ax-raw,ax-standardized,ay-raw,ay-standardized,az-raw,az-standardized,ir-quality,red-quality,hr,bvp_hr,bvp_sdnn,bvp_rmssd,bvp_nn50,bvp_pnn50,resp_rr,spo2,samsung_hr,oura_hr,BP_sys,BP_dia,Experiment,Label
+    
+            np.array:ir-raw,ir-standardized,ir-filtered,ir-difference,ir-welch,red-raw,red-standardized,red-filtered,red-difference,red-welch,ax-raw,ax-standardized,ay-raw,ay-standardized,az-raw,az-standardized
+            str:Experiment,Label
+            float:id,start,end,fs,ir-quality,red-quality,hr,bvp_hr,bvp_sdnn,bvp_rmssd,bvp_nn50,bvp_pnn50,resp_rr,spo2,samsung_hr,oura_hr,BP_sys,BP_dia
+    '''
+    data_path = "/home/disk2/disk/3/tjk/RingData/Preprocessed_test/rings"
+    # check sample data first
+    split_config = {'train': ['00021', '00030', '00010', '00028', '00019', '00014', '00017', '00025', '00022', '00013', '00007', '00009', '00031', '00026', '00032', '00020', '00040', '00016', '00027', '00008', '00011'], 'test': ['00000', '00001', '00002', '00003', '00004', '00005', '00006'], 'valid': ['00023', '00024', '00018', '00029', '00015', '00012']}
+    sample_data = pd.read_pickle(os.path.join(data_path, "00000"+"_ring1_processed.pkl"))
+    sample_data = sample_data.iloc[:10]
+    print(sample_data)
+    print(sample_data.columns)
+    print(sample_data['ir-raw'].iloc[0].shape)
+    
+    # Usage example
+    print(LoadDataset(
+        config={},
+        raw_data=sample_data,
+        channels=['ir-raw', 'red-raw', 'ax-raw', 'ay-raw', 'az-raw'],
+        task='hr'
+    ))
+    
