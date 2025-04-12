@@ -63,7 +63,7 @@ class LoadDataset(Dataset):
             
             # Process each channel separately
             for channel in self.channels:
-            # Get the numpy array for this channel
+                # Get the numpy array for this channel
                 channel_data = self.raw_data.iloc[i][channel]
             
                 # Check if length is less than minimum required (95% of target)
@@ -82,7 +82,7 @@ class LoadDataset(Dataset):
                     
                 # Convert to tensor (adding a channel dimension)
                 channel_tensor = torch.tensor(channel_data, dtype=torch.float32).unsqueeze(1)
-            channel_tensors.append(channel_tensor)
+                channel_tensors.append(channel_tensor)
             
             # Skip this sample if any channel was too short
             if skip_sample:
