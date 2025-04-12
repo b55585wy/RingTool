@@ -41,20 +41,32 @@ class LoadDataset(Dataset):
         
     def load_data(self):
         self.data = []
-        target_length = self.config.get('target_length', 3000)  # Default target length is 3000
-        min_length = int(target_length * 0.8)  # 80% of target length
+        # Get target_length from config or use default of 3000
+        target_fs = self.config.get("dataset", {}).get("target_fs", 100)
+        window_duration = self.config.get("dataset", {}).get("window_duration", 30)
+        # Calculate target length or use default
+        if target_fs and window_duration:
+            target_length = target_fs * window_duration
+        else:
+            target_length = 3000
+        min_length = int(target_length * 0.95)  # 95% of target length
+        # Properly access nested quality threshold
+        quality_th = self.config.get("quality_assessment", {}).get("th", 0.8)  # Default quality threshold is 0.8
         
         for i in tqdm(range(len(self.raw_data))):
             # Load the data in channels
             channel_tensors = []
             skip_sample = False
             
+            if self.raw_data.iloc[i]['ir-quality'] < quality_th or self.raw_data.iloc[i]['red-quality'] < quality_th:
+                continue
+            
             # Process each channel separately
             for channel in self.channels:
             # Get the numpy array for this channel
                 channel_data = self.raw_data.iloc[i][channel]
             
-                # Check if length is less than minimum required (80% of target)
+                # Check if length is less than minimum required (95% of target)
                 if len(channel_data) < min_length:
                     skip_sample = True
                     break

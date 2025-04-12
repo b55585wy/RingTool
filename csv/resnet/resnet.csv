@@ -1,0 +1,8 @@
+exp_name,ring_type,task,input_type,dataset_task,method_name,epochs,lr,criterion,mae_with_std,rmse_with_std,mape_with_std,pearson_with_std
+resnet,ring1,hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",resnet,200,0.001,mse,3.13±5.88,5.90±5.88,4.03±5.88,0.82±5.88
+resnet,ring1,spo2,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",resnet,200,0.001,mse,2.23±3.32,3.32±3.32,2.41±3.32,0.15±3.32
+resnet,ring1,hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",resnet,200,0.001,mse,3.53±4.98,6.10±nan,4.55±5.97,0.82±nan
+resnet,ring1,hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",resnet,200,0.001,mse,3.42±4.65,5.76±nan,4.41±5.51,0.84±nan
+resnet,ring1,spo2,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",resnet,200,0.001,mse,2.23±2.47,3.32±nan,2.41±2.92,0.18±nan
+resnet,ring1,hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",resnet,200,0.001,mse,4.62±0.40,8.13±3.53,6.09±0.52,0.75±0.04
+resnet,ring1,spo2,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",resnet,200,0.001,mse,2.18±0.15,3.26±1.31,2.36±0.17,0.17±0.06

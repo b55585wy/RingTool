@@ -18,7 +18,14 @@
         "label_type": ["hr", "spo2"],
         "shuffle": true,
         "batch_size": 128,
-        "val_ratio": 0.2
+        "quality_assessment": {
+            "method": "elgendi",
+            "th": 0.8
+        },
+        "target_fs": 100,
+        "window_duration": 30,
+        "experiment": ["Health", "Daily","Sport"],
+        "task": ["sitting", "spo2", "deepsquat", "talking", "shaking_head", "standing", "striding"]
     },
     "seed": 42,
     "csv_path": "csv/resnet/resnet.csv",
@@ -43,13 +50,13 @@
     },
     "train":{
         "device": "1",
-        "epochs": 20,
+        "epochs": 200,
         "lr": 1e-3,
         "criterion": "mse",
         "optimizer": "adam",
         "early_stopping": {
             "monitor": "val_loss",
-            "patience": 10,
+            "patience": 30,
             "mode": "min"
         },
         "model_checkpoint": {
@@ -58,43 +65,13 @@
             "save_best_only": true
         }
     },
-
-    "quality_assessment":{
-        "th": null,
-        "method_integration": "best",
-        "method_quality": "templatematch",
-        "method_peaks": "elgendi"
+    "test":{
+        "device": "1",
+        "batch_size": 128,
+        "metrics": ["mae", "rmse", "mape", "pearson"],
+        "model_path": null,
+        "model_name": null
     },
-    "data_preprocess": {
-        "target_fs": 60,
-        "window_duration": 6,
-        "hop_duration": 6,
-        "test_hop":6,
-        "filter": {
-            "highcut": 8,
-            "lowcut": 0.5,
-            "order": 3
-        },
-        "welch": {
-            "nperseg": 128,
-            "noverlap": 64,
-            "nfft": 1024,
-            "window": "hanning"
-        },
-        "file_path": "TODO", 
-        "task_oi": [
-            "TODO"
-            ],
-        "methods": ["original", "difference", "frequency"],
-        "selected_features":{
-            "ring": [
-                "PPG_Red", 
-                "PPG_IR", 
-                "PPG_Green",
-                "ACC_X",
-                "ACC_Y",
-                "ACC_Z"
-            ]
-        }
-    }
+    "pretrain_model": "TODO"
+
 }

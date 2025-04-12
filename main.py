@@ -78,7 +78,6 @@ def set_seed(seed: int):
 
 def main(config_path):
     config = load_config(config_path)
-    
     # load all data
     all_data = find_all_data(DATA_PATH, config["dataset"]["ring_type"])
     subject_list = list(all_data.keys())
@@ -100,10 +99,7 @@ def main(config_path):
                 split_config[split_type] = [subj for subj in split_config[split_type] if subj in subject_list]
     
     print(f"Generated {len(split_configs)} split configurations.")
-            
-            
-
-    
+ 
     results = []
     for split_config in split_configs:
         # Extract channels and task from config
@@ -114,14 +110,14 @@ def main(config_path):
             # load model
             model = load_model(config['method'])
             print(f"Running experiment with split config: {split_config}")
-            trainer = load_trainer(model, config['method']['name'], config["train"])
+            trainer = load_trainer(model, config['method']['name'], config)
             
 
             if "train" in split_config:
                 # prepare training dataset
                 train_data = pd.concat([all_data[p] for p in split_config["train"]])
                 train_dataset = load_dataset(
-                    config=config["data_preprocess"],
+                    config=config,
                     raw_data=train_data,
                     channels=channels,
                     task=task
@@ -130,7 +126,7 @@ def main(config_path):
                 
                 valid_data = pd.concat([all_data[p] for p in split_config["valid"]])
                 valid_dataset = load_dataset(
-                    config=config["data_preprocess"],
+                    config=config,
                     raw_data=valid_data,
                     channels=channels,
                     task=task
@@ -138,18 +134,18 @@ def main(config_path):
                 valid_loader = DataLoader(valid_dataset, batch_size=config["dataset"]["batch_size"], shuffle=False)
                 
                 # Train the model
-                trainer.fit(train_loader, valid_loader)
+                checkpoint_path = trainer.fit(train_loader, valid_loader,task)
         
             # test model 
             test_data = pd.concat([all_data[p] for p in split_config["test"]])
             test_dataset = load_dataset(
-                config=config["data_preprocess"],
+                config=config,
                 raw_data=test_data,
                 channels=channels,
                 task=task
             )
             test_loader = DataLoader(test_dataset, batch_size=config["dataset"]["batch_size"], shuffle=False)
-            test_results = trainer.test(test_loader)
+            test_results = trainer.test(test_loader,checkpoint_path,task)
             results.append(test_results)
     # # Analyze and report the results
     # print("\n===== EXPERIMENT RESULTS =====")
