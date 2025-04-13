@@ -55,7 +55,9 @@ def calculate_metrics(predictions, targets):
     rmse, rmse_std = calculate_rmse(predictions, targets)
     mape, mape_std = calculate_mape(predictions, targets)
     pearson, pearson_std = calculate_pearson(predictions, targets)
+    sample_len = len(predictions)
     return {
+        "sample_len": sample_len,
         "mae": mae,
         "mae_with_std": value_with_std(mae, mae_std),
         "rmse": rmse,
@@ -66,21 +68,90 @@ def calculate_metrics(predictions, targets):
         "pearson_with_std": value_with_std(pearson, pearson_std)
     }
 
-def plot_metrics(predictions, targets, img_path_folder, task):
+def save_metrics_to_csv(metrics, config, task, result_csv_path=None):
+    """
+    Save evaluation metrics to a CSV file
+    
+    Args:
+        metrics (dict): Dictionary containing model evaluation metrics
+        config (dict): Configuration dictionary with experiment settings
+        task (str): Task name 
+        result_csv_path (str, optional): Path to save the CSV file. If None, a default path will be created.
+    
+    Returns:
+        str: Path where the CSV was saved
+    """
+    import os
+    import pandas as pd
+    
+    exp_name = config.get("exp_name")
+    
+    if result_csv_path is None:
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        csv_dir = os.path.join(base_dir, "csv", exp_name, task)
+        os.makedirs(csv_dir, exist_ok=True)
+        result_csv_path = os.path.join(csv_dir, f"{exp_name}.csv")
+    
+    os.makedirs(os.path.dirname(result_csv_path), exist_ok=True)
+    
+    # Create a DataFrame with the metrics
+    metrics_df = pd.DataFrame({
+        'exp_name': [config.get("exp_name", "")],
+        'ring_type': [config.get("dataset", {}).get("ring_type", "")],
+        'task': [task],
+        'input_type': [config.get("dataset", {}).get("input_type", "")],
+        'dataset_task': [config.get("dataset", {}).get("task", "")],
+        'method_name': [config.get("method", {}).get("name", "")],
+        'epochs': [config.get("train", {}).get("epochs", "")],
+        'lr': [config.get("train", {}).get("lr", "")],
+        'criterion': [config.get("train", {}).get("criterion", "")],
+        'batch_size': [config.get("dataset", {}).get("batch_size", "")],
+        'sample_len': [metrics['sample_len']],
+        'mae_with_std': [metrics['mae_with_std']],
+        'rmse_with_std': [metrics['rmse_with_std']],
+        'mape_with_std': [metrics['mape_with_std']],
+        'pearson_with_std': [metrics['pearson_with_std']]
+    })
+
+    # Check if file exists to determine if we need to write headers
+    file_exists = os.path.isfile(result_csv_path)
+
+    # Write to CSV
+    metrics_df.to_csv(result_csv_path, mode='a' if file_exists else 'w', 
+              header=not file_exists, index=False)
+    
+    print(f"Saved results to {result_csv_path}")
+    return result_csv_path
+
+def plot_and_save_metrics(predictions, targets, config, task, img_path_folder=None):
     """
     Generate and save visualization plots comparing predictions and targets
     
     Args:
         predictions (torch.Tensor): Model predictions
         targets (torch.Tensor): Ground truth values
-        img_path_folder (str): Path to save the generated plots
+        config (dict): Configuration dictionary with experiment settings
         task (str): Task name to include in the output filenames
+        img_path_folder (str, optional): Path to save the generated plots. If None, a default path will be created.
+    
+    Returns:
+        str: Path where the images were saved
     """
     import matplotlib.pyplot as plt
+    import os
+    import numpy as np
+    from scipy.stats import gaussian_kde
     
-    # Create output directory if it doesn't exist
-    img_path_folder = os.path.join(img_path_folder, task)
-    os.makedirs(img_path_folder,  exist_ok=True)
+    exp_name = config.get("exp_name")
+    
+    if img_path_folder is None:
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        img_path_folder = os.path.join(base_dir, "img", exp_name)
+    
+    # Create output directory
+    os.makedirs(img_path_folder, exist_ok=True)
+    task_img_folder = os.path.join(img_path_folder, task)
+    os.makedirs(task_img_folder, exist_ok=True)
     
     # Convert tensors to numpy arrays for plotting
     pred_np = predictions.detach().cpu().numpy().flatten()
@@ -118,9 +189,8 @@ def plot_metrics(predictions, targets, img_path_folder, task):
             bbox=dict(boxstyle='round', facecolor='white', alpha=0.7))
     
     ax.grid(True, linestyle='--', alpha=0.7)
-    # Removed colorbar
     plt.tight_layout()
-    scatter_path = os.path.join(img_path_folder, f'scatter_plot_{task}.png')
+    scatter_path = os.path.join(task_img_folder, f'scatter_plot_{task}.png')
     plt.savefig(scatter_path, dpi=300)
     plt.close(fig)
     
@@ -154,9 +224,8 @@ def plot_metrics(predictions, targets, img_path_folder, task):
     ax.legend()
     ax.grid(True)
     
-    # Removed colorbar
     plt.tight_layout()
-    diff_path = os.path.join(img_path_folder, f'difference_plot_{task}.png')
+    diff_path = os.path.join(task_img_folder, f'difference_plot_{task}.png')
     plt.savefig(diff_path, dpi=300)
     plt.close(fig)
     
@@ -173,10 +242,9 @@ def plot_metrics(predictions, targets, img_path_folder, task):
     ax.legend()
     
     plt.tight_layout()
-    hist_path = os.path.join(img_path_folder, f'error_histogram_{task}.png')
+    hist_path = os.path.join(task_img_folder, f'error_histogram_{task}.png')
     plt.savefig(hist_path, dpi=300)
     plt.close(fig)
     
-    print(f"Saved visualization plots to {img_path_folder}")
-    
-    
+    print(f"Saved visualization plots to {task_img_folder}")
+    return task_img_folder

@@ -15,7 +15,7 @@
     "dataset":{
         "ring_type": "ring1",
         "input_type": ["ir-filtered"],
-        "label_type": ["hr", "spo2"],
+        "label_type": ["oura_hr","hr", "spo2", "bvp_sdnn","resp_rr","BP_sys","BP_dia"],
         "shuffle": true,
         "batch_size": 128,
         "quality_assessment": {
@@ -30,7 +30,6 @@
     "seed": 42,
     "csv_path": "csv/resnet/resnet.csv",
     "img_path": "img/resnet",
-    "task": ["hr","spo2"],
     "method": {
         "name": "resnet",
         "type": "ML", 

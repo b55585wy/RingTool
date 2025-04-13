@@ -112,6 +112,10 @@ def main(config_path):
             print(f"Running experiment with split config: {split_config}")
             trainer = load_trainer(model, config['method']['name'], config)
             
+            if task == "oura_hr" or "samsung_hr":
+                train_task = "hr"
+            else: 
+                train_task = task
 
             if "train" in split_config:
                 # prepare training dataset
@@ -120,7 +124,7 @@ def main(config_path):
                     config=config,
                     raw_data=train_data,
                     channels=channels,
-                    task=task
+                    task=train_task
                 )
                 train_loader = DataLoader(train_dataset, batch_size=config["dataset"]["batch_size"], shuffle=True)
                 
@@ -147,61 +151,7 @@ def main(config_path):
             test_loader = DataLoader(test_dataset, batch_size=config["dataset"]["batch_size"], shuffle=False)
             test_results = trainer.test(test_loader,checkpoint_path,task)
             results.append(test_results)
-    # # Analyze and report the results
-    # print("\n===== EXPERIMENT RESULTS =====")
-    
-    # # Initialize dictionaries to store aggregated results
-    # avg_results = {}
-    # all_metrics = set()
-    
-    # # Collect all metric names from the results
-    # for result in results:
-    #     all_metrics.update(result.keys())
-    
-    # # Calculate average for each metric
-    # for metric in all_metrics:
-    #     values = [result[metric] for result in results if metric in result]
-    #     if values:
-    #         avg_results[metric] = sum(values) / len(values)
-    
-    # # Print results
-    # print(f"\nResults for {config['exp_name']} experiment:")
-    # print(f"Mode: {config['mode']}")
-    # if config.get('task'):
-    #     print(f"Task: {config['task']}")
-    # else:
-    #     print(f"Tasks: {config['dataset']['label_type']}")
-    # print(f"Number of splits: {len(results)}")
-    # print("\nAverage Metrics:")
-    # for metric, value in avg_results.items():
-    #     print(f"{metric}: {value:.4f}")
-    
-    # # Print individual split results
-    # if len(results) > 1:
-    #     print("\nResults by Split:")
-    #     for i, result in enumerate(results):
-    #         print(f"\nSplit {i+1}:")
-    #         for metric, value in result.items():
-    #             print(f"{metric}: {value:.4f}")
-    
-    # # Save results to file
-    # save_dir = os.path.join("results", config['exp_name'])
-    # os.makedirs(save_dir, exist_ok=True)
-    
-    # timestamp = pd.Timestamp.now().strftime("%Y%m%d_%H%M%S")
-    # task_name = config.get('task', '-'.join(config['dataset']['label_type']))
-    # result_file = os.path.join(save_dir, f"{config['exp_name']}_{task_name}_{timestamp}.json")
-    
-    # with open(result_file, 'w') as f:
-    #     json.dump({
-    #         "config": config,
-    #         "average_results": avg_results,
-    #         "split_results": results
-    #     }, f, indent=4)
-    
-    # print(f"\nResults saved to {result_file}")
-    
-    # # TODO: save results or show results, different task have different results.
+  
         
 
 

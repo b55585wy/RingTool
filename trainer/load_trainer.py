@@ -7,7 +7,7 @@ import numpy as np
 from scipy.stats import gaussian_kde
 import pandas as pd
 # from utils import *
-from utils.utils import calculate_metrics, plot_metrics
+from utils.utils import calculate_metrics, plot_and_save_metrics,save_metrics_to_csv
 
 class BaseTrainer:
     def __init__(self, model, config: Dict):
@@ -172,53 +172,11 @@ class SupervisedTrainer(BaseTrainer):
               f"MAE: {metrics['mae']:.4f}, RMSE: {metrics['rmse']:.4f}, "
               f"MAPE: {metrics['mape']:.2f}%, Pearson: {metrics['pearson']:.4f}")
         
-        # save metrics and imgs
-        exp_name = self.config.get("exp_name")
-        
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Get RingTool directory
-        
-        result_csv_path = self.config.get("csv_path")
-        if result_csv_path is None:
-            csv_dir = os.path.join(base_dir, "csv", exp_name, task)
-            os.makedirs(csv_dir, exist_ok=True)
-            result_csv_path = os.path.join(csv_dir, f"{exp_name}.csv")
-        
-        img_path_folder = self.config.get("img_path")
-        if img_path_folder is None:
-            img_path_folder = os.path.join(base_dir, "img", exp_name)
-        
-        os.makedirs(os.path.dirname(result_csv_path), exist_ok=True)
-        os.makedirs(img_path_folder, exist_ok=True)
-
-        # Create a DataFrame with the metrics
-        metrics_df = pd.DataFrame({
-            'exp_name': [self.config.get("exp_name", "")],
-            'ring_type': [self.config.get("dataset", {}).get("ring_type", "")],
-            'task': [task],
-            'input_type': [self.config.get("dataset", {}).get("input_type", "")],
-            'dataset_task': [self.config.get("dataset", {}).get("task", "")],
-            'method_name': [self.config.get("method", {}).get("name", "")],
-            'epochs': [self.config.get("train", {}).get("epochs", "")],
-            'lr': [self.config.get("train", {}).get("lr", "")],
-            'criterion': [self.config.get("train", {}).get("criterion", "")],
-            'mae_with_std': [metrics['mae_with_std']],
-            'rmse_with_std': [metrics['rmse_with_std']],
-            'mape_with_std': [metrics['mape_with_std']],
-            'pearson_with_std': [metrics['pearson_with_std']]
-        })
-
-        # Check if file exists to determine if we need to write headers
-        file_exists = os.path.isfile(result_csv_path)
-
-        # Write to CSV (append if file exists, create new with headers if it doesn't)
-        metrics_df.to_csv(result_csv_path, mode='a' if file_exists else 'w', 
-                  header=not file_exists, index=False)
-        
-        
-        plot_metrics(all_preds, all_targets, img_path_folder,task)
-        print(f"Saved results to {result_csv_path}")
-        print(f"Saved visualization plots to {img_path_folder}")
-
+        # Save metrics to CSV
+        save_metrics_to_csv(metrics, self.config, task)
+        # Plot and save metrics
+        plot_and_save_metrics(predictions=all_preds, targets=all_targets, config=self.config, task=task)
+       
         if self.eval_func is not None:
             score = self.eval_func(all_preds, all_targets)
             print(f"Custom evaluation score: {score}")

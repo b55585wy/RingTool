@@ -7,6 +7,7 @@ import os
 import pickle
 import numpy as np
 import random
+from utils.utils import calculate_metrics,save_metrics_to_csv
 
 def load_dataset(config: Dict, raw_data: pd.DataFrame, task: str="hr", channels: List=None):
     """
@@ -52,7 +53,7 @@ class LoadDataset(Dataset):
         min_length = int(target_length * 0.95)  # 95% of target length
         # Properly access nested quality threshold
         quality_th = self.config.get("quality_assessment", {}).get("th", 0.8)  # Default quality threshold is 0.8
-        
+        commercial_hr_label = []
         for i in tqdm(range(len(self.raw_data))):
             # Load the data in channels
             channel_tensors = []
@@ -93,12 +94,40 @@ class LoadDataset(Dataset):
             
             # Load the label
             label = self.raw_data.iloc[i][self.task]
+            # if task is "oura" or "samsung", compare the hr and "oura" or "samsung", print the metrics, return the data contains hr and "oura" or "samsung"
+
             # Skip if label is None
             if label is None:
                 continue
-            label_tensor = torch.tensor(float(label), dtype=torch.float32)
+            if (self.task == "oura_hr" or self.task == "samsung_hr") and self.raw_data.iloc[i]['hr'] is not None:
+                # Compare the hr and "oura" or "samsung"
+                hr = self.raw_data.iloc[i]['hr']
+                # Calculate metrics
+                hr_tensor = torch.tensor(float(hr), dtype=torch.float32)
+                label_tensor = torch.tensor(float(label), dtype=torch.float32)
+                commercial_hr_label.append((label_tensor, hr_tensor))
+                # print(commercial_hr_label)
+                # Use hr as the label for training
+                label_tensor = hr_tensor
+            else:
+                label_tensor = torch.tensor(float(label), dtype=torch.float32)
             # Add the data to the list
             self.data.append((signal_tensor, label_tensor))
+            
+        if self.task == "oura_hr" or self.task == "samsung_hr":
+            if commercial_hr_label:  # Check if we have any data to process
+                
+                # Convert lists of tensors to tensors
+                predictions_list, targets_list = zip(*commercial_hr_label)
+                predictions = torch.stack(predictions_list)
+                targets = torch.stack(targets_list)
+                metrics = calculate_metrics(predictions, targets)
+                print(f"calculate metrics for {self.task} : {metrics}")
+                save_metrics_to_csv(metrics, self.config, self.task)
+            else:
+                metrics = {"note": "No data available for metrics calculation"}
+            
+            
         print(f"Loaded {len(self.data)} samples for task {self.task} with channels {self.channels}")
 
     def __len__(self):
@@ -130,12 +159,13 @@ if __name__ == "__main__":
     print(sample_data)
     print(sample_data.columns)
     print(sample_data['ir-raw'].iloc[0].shape)
+    print(sample_data['samsung_hr'])
     
-    # Usage example
-    print(LoadDataset(
-        config={},
-        raw_data=sample_data,
-        channels=['ir-raw', 'red-raw', 'ax-raw', 'ay-raw', 'az-raw'],
-        task='hr'
-    ))
+    # # Usage example
+    # print(LoadDataset(
+    #     config={},
+    #     raw_data=sample_data,
+    #     channels=['ir-raw', 'red-raw', 'ax-raw', 'ay-raw', 'az-raw'],
+    #     task='hr'
+    # ))
     

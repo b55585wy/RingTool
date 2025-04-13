@@ -2,3 +2,7 @@ data/
 ckpt/
 test.py
 img/
+abandon/
+models/
+csv/
+

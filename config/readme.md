@@ -1,31 +1,62 @@
-```
 {
-    "exp_name": "fft",
-    "mode": "test",  # ["train", "test", "5fold"]
-    "test_participants": "0-8",  # str: "x1-x2" or list:[x1, x2, ...]
-    "device": "cpu",
-    "csv_path": "csv/fft/fft.csv",
-    "img_path": "img/fft",
+    "exp_name": "resnet",
+    "mode": "train",
+    "split":{
+        "train":["00021", "00030", "00010", "00028", "00019", "00014", "00017", "00025", "00022", "00013", "00007", "00009", "00031", "00026", "00032", "00020", "00040", "00016", "00027", "00008", "00011"],
+        "valid": ["00000", "00001", "00002", "00003", "00004", "00005", "00006"],
+        "test": ["00023", "00024", "00018", "00029", "00015", "00012"],
+        "5-Fold":{"Fold-1":["00000", "00001", "00002", "00003", "00004", "00005", "00006"],
+                  "Fold-2":["00007", "00008", "00009", "00010", "00011","00012", "00013"],
+                  "Fold-3":[ "00014" , "00015", "00016","00017", "00018", "00019", "00020"],
+                  "Fold-4":["00021", "00022", "00023", "00024", "00025", "00026", "00027"],
+                  "Fold-5":["00028", "00029", "00030", "00031", "00032", "00033", "00040"]
+    }
+    },
+    "dataset":{
+        "ring_type": "ring1",
+        "input_type": ["ir-raw","ir-filtered","ir-standardized","ir-difference","ir-welch","red-raw","red-filtered","red-standardized","red-difference","red-welch,"ax-raw","ax-filtered","ax-standardized","ax-difference","ax-welch","ay-raw","ay-filtered","ay-standardized","ay-difference","ay-welch","az-raw","az-filtered","az-standardized","az-difference","az-welch"],
+        "label_type": ["hr", "spo2", "bvp_sdnn","resp_rr","samsung_hr","oura_hr","BP_sys","BP_dia"],
+        "shuffle": true,
+        "batch_size": 128,
+        "quality_assessment": {
+            "method": "elgendi",
+            "th": 0.8
+        },
+        "target_fs": 100,
+        "window_duration": 30,
+        "experiment": ["Health", "Daily","Sport"],
+        "task": ["sitting", "spo2", "deepsquat", "talking", "shaking_head", "standing", "striding"]
+    },
+    "seed": 42,
+    "csv_path": "csv/resnet/resnet.csv",
+    "img_path": "img/resnet",
+    "task": ["hr","spo2"],
     "method": {
-        "name": "fft",
-        "type": "non-ML", 
+        "name": "resnet",
+        "type": "ML", 
         "model_path": null,
         "params":{
-            "freq_range": [0.5, 8],
-            "nperseg": 128,
-            "noverlap": 64,
-            "nfft": 1024,
-            "window": "hanning"
+            "in_channels": 1,  
+            "base_filters": 32,
+            "kernel_size": 5,
+            "stride": 2,
+            "groups": 1,
+            "n_block": 8,
+            "n_classes": 180,  
+            "downsample_gap": 2,
+            "increasefilter_gap": 4,
+            "backbone": false
         }
     },
     "train":{
-        "epochs": null,
-        "lr": null,
-        "criterion": null,
-        "optimizer": null,
+        "device": "1",
+        "epochs": 200,
+        "lr": 1e-3,
+        "criterion": "mse",
+        "optimizer": "adam",
         "early_stopping": {
             "monitor": "val_loss",
-            "patience": 10,
+            "patience": 30,
             "mode": "min"
         },
         "model_checkpoint": {
@@ -34,51 +65,13 @@
             "save_best_only": true
         }
     },
-    "dataset":{
-        "input_type": ["original"],
-        "label_type": ["ppg","ecg"],
-        "shuffle": true,
-        "batch_size": 32,
-        "val_ratio": 0.2
+    "test":{
+        "device": "1",
+        "batch_size": 128,
+        "metrics": ["mae", "rmse", "mape", "pearson"],
+        "model_path": null,
+        "model_name": null
     },
-    "quality_assessment":{
-        "th": null,
-        "method_integration": "best",
-        "method_quality": "templatematch",
-        "method_peaks": "elgendi"
-    },
-    "data_preprocess": {
-        "target_fs": 60,
-        "window_duration": 6,
-        "hop_duration": 6,
-        "test_hop":6,
-        "filter": {
-            "highcut": 8,
-            "lowcut": 0.5,
-            "order": 3
-        },
-        "welch": {
-            "nperseg": 128,
-            "noverlap": 64,
-            "nfft": 1024,
-            "window": "hanning"
-        },
-        "file_path": "TODO", 
-        "skip_subjects":["2", "13", "16"],
-        "task_oi": [
-            "TODO"
-            ],
-        "methods": ["original", "difference", "frequency"],
-        "selected_features":{
-            "ring": [
-                "PPG_Red", 
-                "PPG_IR", 
-                "PPG_Green",
-                "ACC_X",
-                "ACC_Y",
-                "ACC_Z"
-            ]
-        }
-    }
+    "pretrain_model": "TODO"
+
 }
-```
