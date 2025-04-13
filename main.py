@@ -53,7 +53,9 @@ def generate_split_config(mode: str, config: Dict):
     elif mode == "train":
         # split into train, valid, test
         split_config.append({"train": split_subject_list['train'], "valid": split_subject_list['valid'], "test": split_subject_list['test'], "fold": "Fold-1"})
-    print(f"Test on {config['fold']}")
+    
+    else:
+        raise ValueError("Invalid mode. Choose '5fold' or 'train'.")
     return split_config
 
 
