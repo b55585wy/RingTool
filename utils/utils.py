@@ -97,7 +97,9 @@ def save_metrics_to_csv(metrics, config, task, result_csv_path=None):
     # Create a DataFrame with the metrics
     metrics_df = pd.DataFrame({
         'exp_name': [config.get("exp_name", "")],
+        'mode': [config.get("mode", "")],
         'ring_type': [config.get("dataset", {}).get("ring_type", "")],
+        'fold': [config.get("fold", "")],
         'task': [task],
         'input_type': [config.get("dataset", {}).get("input_type", "")],
         'dataset_task': [config.get("dataset", {}).get("task", "")],

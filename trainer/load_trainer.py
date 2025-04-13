@@ -122,6 +122,7 @@ class SupervisedTrainer(BaseTrainer):
             
             progress_bar.set_postfix(
                 epoch=f"{epoch+1}/{epochs}",
+                task=task,
                 train_loss=f"{train_loss_avg:.4f}",
                 val_loss=f"{valid_loss_avg:.4f}",
                 mae=f"{metrics['mae']:.4f}"
@@ -129,7 +130,7 @@ class SupervisedTrainer(BaseTrainer):
             
             # Print detailed metrics every 10 epochs
             if epoch % 10 == 0 or epoch == epochs-1:
-                print(f"\nEpoch {epoch+1}/{epochs}:")
+                print(f"\nEpoch {epoch+1}/{epochs}:  Task: {task}")
                 print(f"  Training Loss: {train_loss_avg:.4f}")
                 print(f"  Validation Loss: {valid_loss_avg:.4f}, "
                     f"MAE: {metrics['mae']:.4f}, RMSE: {metrics['rmse']:.4f}, "
@@ -168,7 +169,7 @@ class SupervisedTrainer(BaseTrainer):
         all_targets = torch.cat(all_targets, dim=0)
         
         metrics = calculate_metrics(all_preds, all_targets)
-        print(f"Test Loss: {test_loss / len(test_loader):.4f}, "
+        print(f"Task:{task} Test Loss: {test_loss / len(test_loader):.4f}, "
               f"MAE: {metrics['mae']:.4f}, RMSE: {metrics['rmse']:.4f}, "
               f"MAPE: {metrics['mape']:.2f}%, Pearson: {metrics['pearson']:.4f}")
         

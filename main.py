@@ -17,6 +17,17 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 import random
 
+# TODO: 
+'''
+1. support transformer
+2. check samsung Data √
+3. multi-channels optmize
+4. 5-Fold √
+5. Support InceptionTime
+6. Support Mamba
+7. Unspuervised methods for hr spo2 rr BP
+8. rr re-filter 0.1-0.5Hz
+'''
 
 DATA_PATH = "/home/disk2/disk/3/tjk/RingData/Preprocessed/rings"
 
@@ -28,20 +39,21 @@ def generate_split_config(mode: str, config: Dict):
         for i in range(5):
             valid_fold = i + 1  # Folds are 1-indexed
             test_fold = (i + 1) % 5 + 1  # Wraps around to fold 1 after fold 5
-            
-            valid_p = split_subject_list['5-Flod'][f'Fold-{valid_fold}']
-            test_p = split_subject_list['5-Flod'][f'Fold-{test_fold}']
+
+            valid_p = split_subject_list['5-Fold'][f'Fold-{valid_fold}']
+            test_p = split_subject_list['5-Fold'][f'Fold-{test_fold}']
             
             # Train participants are from the remaining folds
             train_p = []
             for j in range(1, 6):  # Folds are 1-indexed
                 if j != valid_fold and j != test_fold:
-                    train_p.extend(split_subject_list['5-Flod'][f'Fold-{j}'])
+                    train_p.extend(split_subject_list['5-Fold'][f'Fold-{j}'])
             
-            split_config.append({"train": train_p, "valid": valid_p, "test": test_p})
+            split_config.append({"train": train_p, "valid": valid_p, "test": test_p, "fold": f"Fold-{test_fold}"})
     elif mode == "train":
         # split into train, valid, test
-        split_config.append({"train": split_subject_list['train'], "valid": split_subject_list['valid'], "test": split_subject_list['test']})
+        split_config.append({"train": split_subject_list['train'], "valid": split_subject_list['valid'], "test": split_subject_list['test'], "fold": "Fold-1"})
+    print(f"Test on {config['fold']}")
     return split_config
 
 
@@ -58,11 +70,15 @@ def find_all_data(path,ring_type):
         if filename.endswith('.pkl') and ring_type in filename:
             # load data
             file_path = os.path.join(path, filename)
-            data = pd.read_pickle(file_path)
-            # get subject id from filename
-            subject_id = filename.split('_')[0]
-            # add data to dictionary
-            all_data[subject_id] = data
+            try:
+                data = pd.read_pickle(file_path)
+                # get subject id from filename
+                subject_id = filename.split('_')[0]
+                # add data to dictionary
+                all_data[subject_id] = data
+            except Exception as e:
+                print(f"Error loading {filename}: {e}")
+                continue
     return all_data
 
 def set_seed(seed: int):
@@ -102,6 +118,7 @@ def main(config_path):
  
     results = []
     for split_config in split_configs:
+        config['fold'] = split_config["fold"]
         # Extract channels and task from config
         channels = config["dataset"]["input_type"]
         tasks = config["dataset"]["label_type"]
