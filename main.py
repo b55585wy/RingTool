@@ -19,14 +19,14 @@ import random
 
 # TODO: 
 '''
-1. support transformer
+1. support transformer -wzy
 2. check samsung Data √
-3. multi-channels optmize
+3. multi-channels optmize with IMU
 4. 5-Fold √
 5. Support InceptionTime
 6. Support Mamba
 7. Unspuervised methods for hr spo2 rr BP
-8. rr re-filter 0.1-0.5Hz
+8. rr re-filter 0.1-0.5Hz √
 '''
 
 DATA_PATH = "/home/disk2/disk/3/tjk/RingData/Preprocessed/rings"
@@ -37,8 +37,8 @@ def generate_split_config(mode: str, config: Dict):
     split_config = []
     if mode == "5fold":
         for i in range(5):
-            valid_fold = i + 1  # Folds are 1-indexed
-            test_fold = (i + 1) % 5 + 1  # Wraps around to fold 1 after fold 5
+            test_fold = i + 1  # Folds are 1-indexed
+            valid_fold = (i + 1) % 5 + 1  # Wraps around to fold 1 after fold 5
 
             valid_p = split_subject_list['5-Fold'][f'Fold-{valid_fold}']
             test_p = split_subject_list['5-Fold'][f'Fold-{test_fold}']

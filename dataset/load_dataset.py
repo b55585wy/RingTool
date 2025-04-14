@@ -123,7 +123,8 @@ class LoadDataset(Dataset):
                 targets = torch.stack(targets_list)
                 metrics = calculate_metrics(predictions, targets)
                 print(f"calculate metrics for {self.task} : {metrics}")
-                save_metrics_to_csv(metrics, self.config, self.task)
+                
+                save_metrics_to_csv(metrics, self.config, self.task+'_com')
             else:
                 metrics = {"note": "No data available for metrics calculation"}
             
