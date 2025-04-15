@@ -165,8 +165,8 @@ def main(config_path):
             )
             test_loader = DataLoader(test_dataset, batch_size=config["dataset"]["batch_size"], shuffle=False)
             test_results = trainer.test(test_loader,checkpoint_path,task)
-            results.append(test_results)
-  
+
+
         
 
 

@@ -1,5 +1,5 @@
 {
-    "exp_name": "peakdetection",
+    "exp_name": "peak",
     "mode": "train",
     "split":{
         "train": ["00009", "00012", "00005", "00020", "00031", "00022", "00029", "00016", "00026", "00024", "00014", "00010", "00011", "00027", "00008", "00019", "00030", "00003", "00025", "00006", "00033"], 
@@ -15,7 +15,7 @@
     "dataset":{
         "ring_type": "ring2",
         "input_type": ["ir-welch"],
-        "label_type": ["samsung_hr","oura_hr","hr", "spo2", "bvp_sdnn","resp_rr","BP_sys","BP_dia"],
+        "label_type": ["samsung_hr","oura_hr","hr", "resp_rr"],
         "shuffle": true,
         "batch_size": 128,
         "quality_assessment": {
@@ -28,11 +28,11 @@
         "task": ["sitting", "spo2", "deepsquat", "talking", "shaking_head", "standing", "striding"]
     },
     "seed": 42,
-    "csv_path": "csv/peakdetection/peakdetection.csv",
-    "img_path": "img/peakdetection",
+    "csv_path": "csv/peak/peak.csv",
+    "img_path": "img/peak",
     "method": {
-        "name": "peakdetection",
-        "type": "SP", 
+        "name": "peak",
+        "type": "unsupervised", 
         "model_path": null,
         "params":{
             "in_channels": 1,  
