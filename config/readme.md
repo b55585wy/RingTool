@@ -14,7 +14,7 @@
     },
     "dataset":{
         "ring_type": "ring1",
-        "input_type": ["ir-raw","ir-filtered","ir-standardized","ir-difference","ir-welch","red-raw","red-filtered","red-standardized","red-difference","red-welch,"ax-raw","ax-filtered","ax-standardized","ax-difference","ax-welch","ay-raw","ay-filtered","ay-standardized","ay-difference","ay-welch","az-raw","az-filtered","az-standardized","az-difference","az-welch"],
+        "input_type": ["ir-raw","ir-filtered","ir-standardized","ir-difference","ir-welch","ir-filtered-rr","ir-welch-rr","red-raw","red-filtered","red-standardized","red-difference","red-welch","red-filtered-rr","red-welch-rr"."ax-raw","ax-filtered","ax-standardized","ax-difference","ax-welch","ax-filtered-rr","ax-welch-rr","ay-raw","ay-filtered","ay-standardized","ay-difference","ay-welch","ay-filtered-rr","ay-welch-rr","az-raw","az-filtered","az-standardized","az-difference","az-welch","az-filtered-rr","az-welch-rr"],
         "label_type": ["hr", "spo2", "bvp_sdnn","resp_rr","samsung_hr","oura_hr","BP_sys","BP_dia"],
         "shuffle": true,
         "batch_size": 128,

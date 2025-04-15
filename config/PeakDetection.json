@@ -1,5 +1,5 @@
 {
-    "exp_name": "resnet",
+    "exp_name": "peakdetection",
     "mode": "train",
     "split":{
         "train": ["00009", "00012", "00005", "00020", "00031", "00022", "00029", "00016", "00026", "00024", "00014", "00010", "00011", "00027", "00008", "00019", "00030", "00003", "00025", "00006", "00033"], 
@@ -14,7 +14,7 @@
     },
     "dataset":{
         "ring_type": "ring2",
-        "input_type": ["ir-filtered", "red-filtered","ax-filtered","ay-filtered","az-filtered"],
+        "input_type": ["ir-welch"],
         "label_type": ["samsung_hr","oura_hr","hr", "spo2", "bvp_sdnn","resp_rr","BP_sys","BP_dia"],
         "shuffle": true,
         "batch_size": 128,
@@ -28,14 +28,14 @@
         "task": ["sitting", "spo2", "deepsquat", "talking", "shaking_head", "standing", "striding"]
     },
     "seed": 42,
-    "csv_path": "csv/resnet/resnet.csv",
-    "img_path": "img/resnet",
+    "csv_path": "csv/peakdetection/peakdetection.csv",
+    "img_path": "img/peakdetection",
     "method": {
-        "name": "resnet",
-        "type": "ML", 
+        "name": "peakdetection",
+        "type": "SP", 
         "model_path": null,
         "params":{
-            "in_channels": 5,  
+            "in_channels": 1,  
             "base_filters": 32,
             "kernel_size": 5,
             "stride": 2,

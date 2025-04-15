@@ -19,14 +19,10 @@ import random
 
 # TODO: 
 '''
-1. support transformer -wzy
-2. check samsung Data √
-3. multi-channels optmize with IMU
-4. 5-Fold √
-5. Support InceptionTime
-6. Support Mamba
-7. Unspuervised methods for hr spo2 rr BP
-8. rr re-filter 0.1-0.5Hz √
+1. Unspuervised methods for hr spo2 rr BP
+2. multi-channels optmize with IMU -dyk
+3. task -finetune -dyk
+4. Support InceptionTime/Mamba/transformer -wzy
 '''
 
 DATA_PATH = "/home/disk2/disk/3/tjk/RingData/Preprocessed/rings"
