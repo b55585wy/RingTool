@@ -1,3 +1,4 @@
+import logging
 from typing import Dict
 import torch
 import torch.nn as nn
@@ -56,19 +57,19 @@ class UnsupervisedTester(BaseTrainer):
 
     def fit(self, train_loader, valid_loader, task=None):
         # Not used in unsupervised approach
-        print("Unsupervised methods do not require fitting/training")
+        logging.info("Unsupervised methods do not require fitting/training")
         return None
 
     def test(self, test_loader, checkpoint_path=None, task="hr"):
         if self.config["method"]["name"] not in ["peak", "fft", "ratio"]:
             raise ValueError("This tester is only for unsupervised methods, choose from 'peak', 'fft', 'ratio'")
 
-        print(f"Running unsupervised testing for {task}...")
+        logging.info(f"Running unsupervised testing for {task}...")
         all_predictions = []
         all_targets = []
         
         algorithm = self.config["method"].get("algorithm", "peak")
-        print(f"Using algorithm: {algorithm} for task: {task}")
+        logging.info(f"Using algorithm: {algorithm} for task: {task}")
 
         for inputs, labels in tqdm(test_loader, desc=f"Testing {task}"):
             # Convert tensors to numpy for processing
@@ -107,7 +108,7 @@ class UnsupervisedTester(BaseTrainer):
         
         # Calculate metrics
         metrics = calculate_metrics(all_predictions, all_targets)
-        print(f"Task: {task} - "
+        logging.info(f"Task: {task} - "
               f"MAE: {metrics['mae']:.4f}, RMSE: {metrics['rmse']:.4f}, "
               f"MAPE: {metrics['mape']:.2f}%, Pearson: {metrics['pearson']:.4f}")
         
@@ -146,7 +147,9 @@ class SupervisedTrainer(BaseTrainer):
     def load_optimizer(self):
         optimizer_type = self.config["train"]["optimizer"]
         if optimizer_type == "adam":
-            self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.config["train"].get("lr", 0.001))
+            self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.config.get("lr", 0.001))
+        elif optimizer_type == "adamw":
+            self.optimizer = torch.optim.AdamW(self.model.parameters(), lr=self.config.get("lr", 0.001))
         else:
             raise ValueError(f"Unsupported optimizer type: {optimizer_type}")
 
@@ -154,13 +157,29 @@ class SupervisedTrainer(BaseTrainer):
         epochs = self.config.get("train", {}).get("epochs", 200)
         best_loss = float('inf')  # For metrics like loss where lower is better
         # patience = self.config.get("train", {}).get("early_stopping", {}).get("patience", 10)
+        scheduler = None
+        if self.config.get("train", {}).get("scheduler", {}).get("type", None) == "reduce_on_plateau":
+            factor = self.config.get("train", {}).get("scheduler", {}).get("factor", 0.5)
+            patience = self.config.get("train", {}).get("scheduler", {}).get("patience", 10)
+            min_lr = self.config.get("train", {}).get("scheduler", {}).get("min_lr", 1e-6)
+            threshold = self.config.get("train", {}).get("scheduler", {}).get("threshold", 1e-4)
+            scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+                self.optimizer,
+                mode='min',              # min for loss, max for accuracy
+                factor=factor,           # multiply LR by this factor
+                patience=patience,       # wait N epochs before reducing
+                threshold=threshold,     # min change to count as an improvement
+                cooldown=0,              # wait time after LR is reduced
+                min_lr=min_lr,           # lower bound on LR
+                verbose=True             # log messages
+            )
         checkpoint_dir = os.path.join("models", self.config.get("exp_name"),task)
         model_name = self.config.get("exp_name")
         
         os.makedirs(checkpoint_dir, exist_ok=True)
         best_checkpoint_path = os.path.join(checkpoint_dir, f"{model_name}_best.pt")
         if self.gradient_accum > 1:
-            print(f"Training with gradient accumulation: {self.gradient_accum} steps")
+            logging.info(f"Training with gradient accumulation: {self.gradient_accum} steps")
         progress_bar = tqdm(range(epochs), desc="Training Progress")
         for epoch in progress_bar:
             # 训练阶段
@@ -215,7 +234,15 @@ class SupervisedTrainer(BaseTrainer):
                 }, best_checkpoint_path)
                 progress_bar.set_description(f"Training Progress (saved best model, val_loss={valid_loss_avg:.4f})")
 
-            
+            if scheduler:
+                prev_lr = self.optimizer.param_groups[0]['lr']
+                scheduler.step(valid_loss_avg)
+                current_lr = self.optimizer.param_groups[0]['lr']
+                if current_lr < prev_lr:
+                    logging.info(f"Epoch {epoch+1}: Reduced learning rate from {prev_lr:.8f} to {current_lr:.8f} due to plateau.")
+                else:
+                    logging.info(f"Epoch {epoch+1}: Learning rate unchanged at {current_lr:.8f}.")
+
             progress_bar.set_postfix(
                 epoch=f"{epoch+1}/{epochs}",
                 task=task,
@@ -223,18 +250,18 @@ class SupervisedTrainer(BaseTrainer):
                 val_loss=f"{valid_loss_avg:.4f}",
                 mae=f"{metrics['mae']:.4f}"
             )
-            
+
             # Print detailed metrics every 10 epochs
             if epoch % 10 == 0 or epoch == epochs-1:
-                print(f"\nEpoch {epoch+1}/{epochs}:  Task: {task}")
-                print(f"  Training Loss: {train_loss_avg:.4f}")
-                print(f"  Validation Loss: {valid_loss_avg:.4f}, "
+                logging.info(f"\nEpoch {epoch+1}/{epochs}:  Task: {task}")
+                logging.info(f"  Training Loss: {train_loss_avg:.4f}")
+                logging.info(f"  Validation Loss: {valid_loss_avg:.4f}, "
                     f"MAE: {metrics['mae']:.4f}, RMSE: {metrics['rmse']:.4f}, "
                     f"MAPE: {metrics['mape']:.2f}%, Pearson: {metrics['pearson']:.4f}")
                 
                 if self.eval_func is not None:
                     score = self.eval_func(all_preds, all_targets)
-                    print(f"  Custom evaluation score: {score}")
+                    logging.info(f"  Custom evaluation score: {score}")
             
 
         
@@ -243,10 +270,10 @@ class SupervisedTrainer(BaseTrainer):
     def test(self, test_loader, checkpoint_path,task):
         # Load the best checkpoint if provided
         if checkpoint_path and os.path.exists(checkpoint_path):
-            print(f"Loading best model checkpoint from: {checkpoint_path}")
+            logging.info(f"Loading best model checkpoint from: {checkpoint_path}")
             checkpoint = torch.load(checkpoint_path)
             self.model.load_state_dict(checkpoint['model_state_dict'])
-            print(f"Loaded model from epoch {checkpoint['epoch']+1} with "
+            logging.info(f"Loaded model from epoch {checkpoint['epoch']+1} with "
                   f"validation loss: {checkpoint['valid_loss']:.4f}, "
                   f"MAE: {checkpoint['metrics']['mae']:.4f}")
         
@@ -265,7 +292,7 @@ class SupervisedTrainer(BaseTrainer):
         all_targets = torch.cat(all_targets, dim=0)
         
         metrics = calculate_metrics(all_preds, all_targets)
-        print(f"Task:{task} Test Loss: {test_loss / len(test_loader):.4f}, "
+        logging.info(f"Task:{task} Test Loss: {test_loss / len(test_loader):.4f}, "
               f"MAE: {metrics['mae']:.4f}, RMSE: {metrics['rmse']:.4f}, "
               f"MAPE: {metrics['mape']:.2f}%, Pearson: {metrics['pearson']:.4f}")
         
@@ -276,7 +303,7 @@ class SupervisedTrainer(BaseTrainer):
        
         if self.eval_func is not None:
             score = self.eval_func(all_preds, all_targets)
-            print(f"Custom evaluation score: {score}")
+            logging.info(f"Custom evaluation score: {score}")
 
         return {
             "loss": test_loss / len(test_loader),
@@ -307,5 +334,3 @@ if __name__ == '__main__':
     config = load_config("/home/disk2/disk/3/tjk/RingTool/config/Resnet.json")
     print(config)
     print(config.get("img_path"))
-    
-    

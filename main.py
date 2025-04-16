@@ -2,6 +2,8 @@ import json
 import os
 import numpy as np
 import pandas as pd
+import logging
+import warnings
 from scipy.signal import welch, get_window, butter, filtfilt
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
@@ -75,7 +77,7 @@ def find_all_data(path,ring_type):
                 # add data to dictionary
                 all_data[subject_id] = data
             except Exception as e:
-                print(f"Error loading {filename}: {e}")
+                logging.error(f"Error loading {filename}: {e}")
                 continue
     return all_data
 
@@ -93,7 +95,7 @@ def unsupervised(config_path):
     all_data = find_all_data(DATA_PATH, config["dataset"]["ring_type"])
     subject_list = list(all_data.keys())
     all_data = pd.concat(all_data.values())
-    print(f"Found {len(subject_list)} subjects in the data folder.") 
+    logging.info(f"Found {len(subject_list)} subjects in the data folder.") 
     # set seed
     set_seed(config["seed"])
     # only test on the whole dataset without split, unsupervised methods
@@ -103,7 +105,7 @@ def unsupervised(config_path):
         # load dataset
         channels = config["dataset"]["input_type"]
         tasks = config["dataset"]["label_type"]
-        print(f"Channels: {channels}, Task: {tasks}")
+        logging.info(f"Channels: {channels}, Task: {tasks}")
         tester = load_trainer(config['method'], config['method']['name'], config)
         for task in tasks:
             all_dataset = load_dataset(
@@ -115,7 +117,7 @@ def unsupervised(config_path):
             all_loader = DataLoader(all_dataset, batch_size=config["dataset"]["batch_size"], shuffle=False)
             test_results = tester.test(all_loader, None, task)
             # print test results
-            print(f"Test results for task {task}: {test_results}")
+            logging.info(f"Test results for task {task}: {test_results}")
     
 
 
@@ -124,7 +126,7 @@ def main(config_path):
     # load all data
     all_data = find_all_data(DATA_PATH, config["dataset"]["ring_type"])
     subject_list = list(all_data.keys())
-    print(f"Found {len(subject_list)} subjects in the data folder.")
+    logging.info(f"Found {len(subject_list)} subjects in the data folder.")
     # set seed
     set_seed(config["seed"])
     # training 
@@ -141,19 +143,20 @@ def main(config_path):
                 # Filter out subjects that don't exist in available data
                 split_config[split_type] = [subj for subj in split_config[split_type] if subj in subject_list]
     
-    print(f"Generated {len(split_configs)} split configurations.")
+    logging.info(f"Generated {len(split_configs)} split configurations.")
  
-    results = []
     for split_config in split_configs:
         config['fold'] = split_config["fold"]
         # Extract channels and task from config
         channels = config["dataset"]["input_type"]
         tasks = config["dataset"]["label_type"]
-        print(f"Channels: {channels}, Task: {tasks}")
+        logging.info(f"Channels: {channels}, Task: {tasks}")
         for task in tasks:
             # load model
             model = load_model(config['method'])
-            print(f"Running experiment with split config: {split_config}")
+            logging.info(f"Successfully loaded model {config['method']}")
+            logging.info(f"Running experiment with split config: {split_config}")
+
             trainer = load_trainer(model, config['method']['name'], config)
             
             if task == "oura_hr" or "samsung_hr":
@@ -182,7 +185,7 @@ def main(config_path):
                 valid_loader = DataLoader(valid_dataset, batch_size=config["dataset"]["batch_size"], shuffle=False)
                 
                 # Train the model
-                checkpoint_path = trainer.fit(train_loader, valid_loader,task)
+                checkpoint_path = trainer.fit(train_loader, valid_loader, task)
         
             # test model 
             test_data = pd.concat([all_data[p] for p in split_config["test"]])
@@ -196,13 +199,15 @@ def main(config_path):
             test_results = trainer.test(test_loader,checkpoint_path,task)
 
 
-        
-
-
 if __name__ == '__main__':
+    # Set up logging
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    
+    warnings.filterwarnings('ignore', category=UserWarning, module='torch.nn')
+
     parser = argparse.ArgumentParser(description='Process ring PPG data using FFT.')
-    # parser.add_argument('--config', type=str, default="./config/Resnet.json", help='Path to the configuration JSON file.')
-    parser.add_argument('--config', type=str, default="./config/Transformer.json", help='Path to the configuration JSON file.')
+    parser.add_argument('--config', type=str, default="./config/Resnet.json", help='Path to the configuration JSON file.')
+    # parser.add_argument('--config', type=str, default="./config/Transformer.json", help='Path to the configuration JSON file.')
     args = parser.parse_args()
     # Load the configuration
     config = load_config(args.config)
