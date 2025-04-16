@@ -23,9 +23,12 @@ def get_rr(y, fs=100, min=6, max=30, method = 'fft'):
     max: maximum heart rate
     method: 'fft' or 'peak'
     """
-    if y.ndim != 1:
-        raise ValueError("Input signal y must be a 1D array.")
-
+    if y.shape[1]!=1:
+        raise ValueError("y should be a 1D array, but got a 2D array.")
+    # Check if y is a 2D array and flatten it to 1D
+    if len(y.shape) > 1:
+        y = y.flatten()
+        
     if method == 'fft':
         p, q = welch(y, fs, nfft=int(1e5/fs), nperseg=np.min((len(y)-1, 512)))
         fft_rr = p[(p>min/60)&(p<max/60)][np.argmax(q[(p>min/60)&(p<max/60)])]*60
