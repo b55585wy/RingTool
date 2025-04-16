@@ -8,15 +8,19 @@ from scipy.stats import gaussian_kde
 import pandas as pd
 # from utils import *
 from utils.utils import calculate_metrics, plot_and_save_metrics,save_metrics_to_csv
+from unsupervised.hr.hr import get_hr
+from unsupervised.rr.rr import get_rr
+from unsupervised.spo2.spo2 import get_spo2
 
 class BaseTrainer:
     def __init__(self, model, config: Dict):
         self.config = config
-        self.model = model
-        self.device = torch.device("cuda:" + str(config["train"]["device"]) 
-                                   if torch.cuda.is_available() and config["train"]["device"] != "cpu" 
-                                   else "cpu")
-        self.model.to(self.device)
+        if config["method"]["name"] in ["resnet", "transformer"]:
+            self.model = model
+            self.device = torch.device("cuda:" + str(config["train"]["device"]) 
+                                    if torch.cuda.is_available() and config["train"]["device"] != "cpu" 
+                                    else "cpu")
+            self.model.to(self.device)
 
 
     def load_optimizer(self):
@@ -34,6 +38,85 @@ class BaseTrainer:
     def test(self, test_loader):
         """测试模型"""
         raise NotImplementedError("子类需要实现 test 方法")
+    
+# -------------------------------
+# 非监督测试器
+# -------------------------------
+class UnsupervisedTester(BaseTrainer):
+    def __init__(self, model, config: Dict):
+        super().__init__(model, config)
+        
+    def load_optimizer(self):
+        # Not needed for unsupervised testing
+        pass
+
+    def load_criterion(self):
+        # Not needed for unsupervised testing
+        pass
+
+    def fit(self, train_loader, valid_loader, task=None):
+        # Not used in unsupervised approach
+        print("Unsupervised methods do not require fitting/training")
+        return None
+
+    def test(self, test_loader, checkpoint_path=None, task="hr"):
+        if self.config["method"]["name"] not in ["peak", "fft", "ratio"]:
+            raise ValueError("This tester is only for unsupervised methods, choose from 'peak', 'fft', 'ratio'")
+
+        print(f"Running unsupervised testing for {task}...")
+        all_predictions = []
+        all_targets = []
+        
+        algorithm = self.config["method"].get("algorithm", "peak")
+        print(f"Using algorithm: {algorithm} for task: {task}")
+
+        for inputs, labels in tqdm(test_loader, desc=f"Testing {task}"):
+            # Convert tensors to numpy for processing
+            inputs_np = inputs.cpu().numpy()
+            labels_np = labels.cpu().numpy()
+            
+            batch_size = inputs_np.shape[0]
+            batch_predictions = []
+            
+            # Process each sample in the batch
+            for i in range(batch_size):
+                signal = inputs_np[i]
+                
+                # Call the appropriate unsupervised method based on task
+                if task in ["hr", "bvp_hr", "samsung_hr", "oura_hr"]:
+                    prediction = get_hr(signal, method=algorithm)
+                elif task == "resp_rr":
+                    prediction = get_rr(signal, method=algorithm)
+                elif task == "spo2":
+                    prediction = get_spo2(signal, method=algorithm)
+                else:
+                    raise ValueError(f"Unsupported task: {task}")
+                
+                batch_predictions.append(prediction)
+            
+            all_predictions.extend(batch_predictions)
+            all_targets.extend(labels_np.reshape(-1).tolist())
+
+        # Convert to tensors for metrics calculation
+        all_predictions = torch.tensor(all_predictions).reshape(-1, 1)
+        all_targets = torch.tensor(all_targets).reshape(-1, 1)
+        
+        # Calculate metrics
+        metrics = calculate_metrics(all_predictions, all_targets)
+        print(f"Task: {task} - "
+              f"MAE: {metrics['mae']:.4f}, RMSE: {metrics['rmse']:.4f}, "
+              f"MAPE: {metrics['mape']:.2f}%, Pearson: {metrics['pearson']:.4f}")
+        
+        # Save metrics to CSV
+        save_metrics_to_csv(metrics, self.config, task)
+        
+        # Plot and save metrics
+        plot_and_save_metrics(predictions=all_predictions, targets=all_targets, config=self.config, task=task)
+        
+        return {
+            "loss": 0,  # No loss computation in unsupervised methods
+            **metrics
+        }
 
 # -------------------------------
 # 监督训练器
@@ -193,8 +276,10 @@ class SupervisedTrainer(BaseTrainer):
 
 def load_trainer(model, model_name: str, config: Dict):
     """根据模型名称加载对应的训练器"""
-    if model_name in ["resnet"]:
+    if model_name in ["resnet", "transformer"]:
         return SupervisedTrainer(model, config)
+    elif model_name in ["peak", "fft", "ratio"]:
+        return UnsupervisedTester(model, config)
     return BaseTrainer(model, config)
 
 if __name__ == '__main__':
