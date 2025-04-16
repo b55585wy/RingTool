@@ -88,7 +88,11 @@ class UnsupervisedTester(BaseTrainer):
                 elif task == "resp_rr":
                     prediction = get_rr(signal, method=algorithm)
                 elif task == "spo2":
-                    prediction = get_spo2(signal, method=algorithm)
+                    # print(signal.shape)
+                    # Split the signal into two columns - main signal and ppg_ir
+                    ppg_red = signal[:, 1]
+                    ppg_ir = signal[:, 0]
+                    prediction = get_spo2(ppg_red, ppg_ir, method=algorithm)
                 else:
                     raise ValueError(f"Unsupported task: {task}")
                 

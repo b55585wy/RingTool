@@ -63,7 +63,12 @@ class LoadDataset(Dataset):
             # Process each channel separately
             for channel in self.channels:
                 # Get the numpy array for this channel
+                
                 channel_data = self.raw_data.iloc[i][channel]
+                # check if the channel is np.array
+                if not isinstance(channel_data, np.ndarray):
+                    skip_sample = True
+                    break
                 # Check if length is less than minimum required (95% of target)
                 if len(channel_data) < min_length:
                     skip_sample = True
