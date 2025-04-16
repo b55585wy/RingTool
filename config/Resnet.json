@@ -47,7 +47,7 @@
         }
     },
     "train":{
-        "device": "1",
+        "device": "0",
         "epochs": 300,
         "lr": 5e-4,
         "criterion": "mse",
@@ -58,10 +58,10 @@
             "mode": "min"
         },
         "scheduler": {
-            "status": "TODO: to be implemented",
             "type": "reduce_on_plateau",
             "factor": 0.5,
             "patience": 10,
+            "threshold": 1e-4,
             "min_lr": 1e-6
         },
         "model_checkpoint": {
@@ -71,7 +71,7 @@
         }
     },
     "test":{
-        "device": "1",
+        "device": "0",
         "batch_size": 32,
         "metrics": ["mae", "rmse", "mape", "pearson"],
         "model_path": null,
