@@ -58,20 +58,21 @@ class LoadDataset(Dataset):
             # Load the data in channels
             channel_tensors = []
             skip_sample = False
-            
             if self.raw_data.iloc[i]['ir-quality'] < quality_th or self.raw_data.iloc[i]['red-quality'] < quality_th:
                 continue
-            
             # Process each channel separately
             for channel in self.channels:
                 # Get the numpy array for this channel
+                
                 channel_data = self.raw_data.iloc[i][channel]
-            
+                # check if the channel is np.array
+                if not isinstance(channel_data, np.ndarray):
+                    skip_sample = True
+                    break
                 # Check if length is less than minimum required (95% of target)
                 if len(channel_data) < min_length:
                     skip_sample = True
                     break
-                    
                 # Handle length:
                 if len(channel_data) > target_length:
                     # If longer than target, truncate
@@ -80,22 +81,17 @@ class LoadDataset(Dataset):
                     # If shorter than target, pad with zeros
                     padding = np.zeros(target_length - len(channel_data))
                     channel_data = np.concatenate([channel_data, padding])
-                    
                 # Convert to tensor (adding a channel dimension)
                 channel_tensor = torch.tensor(channel_data, dtype=torch.float32).unsqueeze(1)
                 channel_tensors.append(channel_tensor)
-            
             # Skip this sample if any channel was too short
             if skip_sample:
                 continue
-            
             # Concatenate all channel tensors along dimension 1
             signal_tensor = torch.cat(channel_tensors, dim=1)
-            
             # Load the label
             label = self.raw_data.iloc[i][self.task]
             # if task is "oura" or "samsung", compare the hr and "oura" or "samsung", print the metrics, return the data contains hr and "oura" or "samsung"
-
             # Skip if label is None
             if label is None:
                 continue

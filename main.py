@@ -87,7 +87,36 @@ def set_seed(seed: int):
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
-                
+def unsupervised(config_path):   
+    config = load_config(config_path)
+    # load all data
+    all_data = find_all_data(DATA_PATH, config["dataset"]["ring_type"])
+    subject_list = list(all_data.keys())
+    all_data = pd.concat(all_data.values())
+    print(f"Found {len(subject_list)} subjects in the data folder.") 
+    # set seed
+    set_seed(config["seed"])
+    # only test on the whole dataset without split, unsupervised methods
+    if config["mode"] not in ["train", "test", "5fold"]:
+        raise ValueError("Invalid mode. Choose 'train' or 'test', '5fold'.")
+    if config["mode"] == "test" and config["method"]["type"]== "unsupervised":
+        # load dataset
+        channels = config["dataset"]["input_type"]
+        tasks = config["dataset"]["label_type"]
+        print(f"Channels: {channels}, Task: {tasks}")
+        tester = load_trainer(config['method'], config['method']['name'], config)
+        for task in tasks:
+            all_dataset = load_dataset(
+                config=config,
+                raw_data=all_data,
+                channels=channels,
+                task=task
+            )
+            all_loader = DataLoader(all_dataset, batch_size=config["dataset"]["batch_size"], shuffle=False)
+            test_results = tester.test(all_loader, None, task)
+            # print test results
+            print(f"Test results for task {task}: {test_results}")
+    
 
 
 def main(config_path):
@@ -165,14 +194,22 @@ def main(config_path):
             )
             test_loader = DataLoader(test_dataset, batch_size=config["dataset"]["batch_size"], shuffle=False)
             test_results = trainer.test(test_loader,checkpoint_path,task)
-            results.append(test_results)
-  
+
+
         
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process ring PPG data using FFT.')
-    parser.add_argument('--config', type=str, default="./config/Resnet.json", help='Path to the configuration JSON file.')
+    # parser.add_argument('--config', type=str, default="./config/Resnet.json", help='Path to the configuration JSON file.')
+    parser.add_argument('--config', type=str, default="./config/Transformer.json", help='Path to the configuration JSON file.')
     args = parser.parse_args()
-    
-    main(args.config)
+    # Load the configuration
+    config = load_config(args.config)
+    if config["method"]["type"] == "unsupervised":
+        # unsupervised methods
+        unsupervised(args.config)
+    else:
+        # supervised methods
+        main(args.config)
+
