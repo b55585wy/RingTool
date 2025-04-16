@@ -7,7 +7,8 @@ import numpy as np
 from scipy.stats import gaussian_kde
 import pandas as pd
 # from utils import *
-from utils.utils import calculate_metrics, plot_and_save_metrics,save_metrics_to_csv
+from utils.utils import calculate_metrics, plot_and_save_metrics, save_metrics_to_csv
+
 
 class BaseTrainer:
     def __init__(self, model, config: Dict):
@@ -59,6 +60,8 @@ class SupervisedTrainer(BaseTrainer):
         optimizer_type = self.config["train"]["optimizer"]
         if optimizer_type == "adam":
             self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.config.get("lr", 0.001))
+        elif optimizer_type == "adamw":
+            self.optimizer = torch.optim.AdamW(self.model.parameters(), lr=self.config.get("lr", 0.001))
         else:
             raise ValueError(f"Unsupported optimizer type: {optimizer_type}")
 
@@ -209,5 +212,3 @@ if __name__ == '__main__':
     config = load_config("/home/disk2/disk/3/tjk/RingTool/config/Resnet.json")
     print(config)
     print(config.get("img_path"))
-    
-    

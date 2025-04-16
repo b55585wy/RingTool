@@ -152,10 +152,9 @@ class ResNet1D(nn.Module):
         stride: stride of kernel moving
         groups: set larget to 1 as ResNeXt
         n_block: number of blocks
-        n_classes: number of classes
     """
 
-    def __init__(self, in_channels, base_filters, kernel_size, stride, groups, n_block, n_classes, downsample_gap=2, increasefilter_gap=4, use_bn=True, use_do=True, verbose=False, backbone=False, output_dim=200):
+    def __init__(self, in_channels, base_filters, kernel_size, stride, groups, n_block, downsample_gap=2, increasefilter_gap=4, use_bn=True, use_do=True, verbose=False, backbone=False, output_dim=200):
         super(ResNet1D, self).__init__()
         self.out_dim = output_dim
         self.backbone = backbone
