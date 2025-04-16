@@ -1,6 +1,6 @@
 import os
 from nets.resnet import ResNet1D
-from nets.transformer import Transformer
+from nets.transformer import MyTransformer
 # from nets.inception import Inception
 
 def load_model(config):
@@ -10,7 +10,7 @@ def load_model(config):
         )
     elif config['name'] == "transformer":
 
-        return Transformer(
+        return MyTransformer(
             **config["params"]
         )
     

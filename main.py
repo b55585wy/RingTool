@@ -201,7 +201,8 @@ def main(config_path):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process ring PPG data using FFT.')
-    parser.add_argument('--config', type=str, default="./config/Resnet.json", help='Path to the configuration JSON file.')
+    # parser.add_argument('--config', type=str, default="./config/Resnet.json", help='Path to the configuration JSON file.')
+    parser.add_argument('--config', type=str, default="./config/Transformer.json", help='Path to the configuration JSON file.')
     args = parser.parse_args()
     # Load the configuration
     config = load_config(args.config)

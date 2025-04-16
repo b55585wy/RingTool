@@ -128,6 +128,7 @@ class SupervisedTrainer(BaseTrainer):
         self.eval_func = eval_func
         self.load_optimizer()
         self.load_criterion()
+        self.gradient_accum = config["train"].get("gradient_accum", 1)
 
     def load_criterion(self):
         criterion_type = self.config["train"]["criterion"]
@@ -141,7 +142,7 @@ class SupervisedTrainer(BaseTrainer):
     def load_optimizer(self):
         optimizer_type = self.config["train"]["optimizer"]
         if optimizer_type == "adam":
-            self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.config.get("lr", 0.001))
+            self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.config["train"].get("lr", 0.001))
         else:
             raise ValueError(f"Unsupported optimizer type: {optimizer_type}")
 
@@ -154,20 +155,28 @@ class SupervisedTrainer(BaseTrainer):
         
         os.makedirs(checkpoint_dir, exist_ok=True)
         best_checkpoint_path = os.path.join(checkpoint_dir, f"{model_name}_best.pt")
-        
+        if self.gradient_accum > 1:
+            print(f"Training with gradient accumulation: {self.gradient_accum} steps")
         progress_bar = tqdm(range(epochs), desc="Training Progress")
         for epoch in progress_bar:
             # 训练阶段
             self.model.train()
             train_loss = 0
-            for inputs, labels in train_loader:
+            self.optimizer.zero_grad()
+            for idx, (inputs, labels) in enumerate(train_loader):
+                # Gradient accumulation
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
-                self.optimizer.zero_grad()
                 outputs, _ = self.model(inputs)
                 loss = self.criterion(outputs, labels)
+                loss = loss / self.gradient_accum
                 loss.backward()
+                if (idx + 1) % self.gradient_accum == 0:
+                    self.optimizer.step()
+                    self.optimizer.zero_grad()
+                train_loss += loss.item() * self.gradient_accum
+            if len(train_loader) % self.gradient_accum != 0:
                 self.optimizer.step()
-                train_loss += loss.item()
+                self.optimizer.zero_grad()
             
             # 验证阶段
             self.model.eval()
