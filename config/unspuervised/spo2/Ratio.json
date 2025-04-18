@@ -13,7 +13,7 @@
     }
     },
     "dataset":{
-        "ring_type": "ring2",
+        "ring_type": "ring1",
         "input_type": ["ir-raw","red-raw"],
         "label_type": ["spo2"],
         "shuffle": true,
