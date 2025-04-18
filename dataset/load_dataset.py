@@ -53,6 +53,8 @@ class LoadDataset(Dataset):
         # Get target_length from config or use default of 3000
         target_fs = self.config.get("dataset", {}).get("target_fs", 100)
         window_duration = self.config.get("dataset", {}).get("window_duration", 30)
+        dataset_task_list = self.config.get("dataset", {}).get("task",["sitting", "spo2", "deepsquat", "talking", "shaking_head", "standing", "striding"])
+        print(f"Load dataset from scenarios: {dataset_task_list}")
         # Calculate target length or use default
         if target_fs and window_duration:
             target_length = target_fs * window_duration
@@ -62,16 +64,21 @@ class LoadDataset(Dataset):
         # Properly access nested quality threshold
         quality_th = self.config.get("quality_assessment", {}).get("th", 0.8)  # Default quality threshold is 0.8
         commercial_hr_label = []
-        
+        accel_combined = self.config.get("dataset", {}).get("accel_combined", False)
+        combined_method = self.config.get("dataset", {}).get("accel_combined_method", "magnitude")
+        if accel_combined:
+            logging.info(f"Using combined accels with metric {combined_method}.")
+
         for i in tqdm(range(len(self.raw_data))):
             # Load the data in channels
             channel_tensors = []
             skip_sample = False
             if self.raw_data.iloc[i]['ir-quality'] < quality_th or self.raw_data.iloc[i]['red-quality'] < quality_th:
                 continue
+            if self.raw_data.iloc[i]["Label"] not in dataset_task_list:
+                continue
 
             accels_data = {}  # handle accels data separately
-            accel_combined = self.config.get("dataset", {}).get("accel_combined", False)
             # Process each channel separately
             for channel in self.channels:
                 # Get the numpy array for this channel
@@ -127,7 +134,6 @@ class LoadDataset(Dataset):
                     
                     # accel_features = extract_accel_features(ax, ay, az)
                     accel_features = extract_accel_features_cuda(ax, ay, az)  # GPU
-                    combined_method = self.config.get("dataset", {}).get("accel_combined_method", "magnitude")
 
                     channel_tensor = accel_features[combined_method].unsqueeze(1)
                     channel_tensors.append(channel_tensor.cpu())
