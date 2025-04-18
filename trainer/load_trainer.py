@@ -70,7 +70,7 @@ class UnsupervisedTester(BaseTrainer):
         all_predictions = []
         all_targets = []
         
-        algorithm = self.config["method"].get("algorithm", "peak")
+        algorithm = self.config["method"].get("name", "peak")
         logging.info(f"Using algorithm: {algorithm} for task: {task}")
 
         for inputs, labels in tqdm(test_loader, desc=f"Testing {task}"):
