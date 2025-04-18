@@ -1,5 +1,5 @@
 {
-    "exp_name": "samsung-hr-resnet",
+    "exp_name": "resp_rr-resnet",
     "mode": "train",
     "split":{
         "train": ["00009", "00012", "00005", "00020", "00031", "00022", "00029", "00016", "00026", "00024", "00014", "00010", "00011", "00027", "00008", "00019", "00030", "00003", "00025", "00006", "00033"], 
@@ -21,9 +21,9 @@
             "ay-raw","ay-filtered","ay-standardized","ay-difference","ay-welch","ay-filtered-rr","ay-welch-rr",
             "az-raw","az-filtered","az-standardized","az-difference","az-welch","az-filtered-rr","az-welch-rr"
         ],
-        "input_type": ["ir-filtered","red-filtered","ax-standardized","ay-standardized","az-standardized"],
+        "input_type": ["ir-filtered-rr","red-filtered-rr","ax-filtered-rr","ay-filtered-rr","az-filtered-rr"],
         "original_label_type": ["samsung_hr","oura_hr","hr", "spo2", "bvp_sdnn","resp_rr","BP_sys","BP_dia"],
-        "label_type": ["samsung_hr"],
+        "label_type": ["resp_rr"],
         "shuffle": true,
         "batch_size": 128,
         "quality_assessment": {

@@ -21,9 +21,9 @@
             "ay-raw","ay-filtered","ay-standardized","ay-difference","ay-welch","ay-filtered-rr","ay-welch-rr",
             "az-raw","az-filtered","az-standardized","az-difference","az-welch","az-filtered-rr","az-welch-rr"
         ],
-        "input_type": ["ir-filtered","red-filtered","ax-standardized","ay-standardized","az-standardized"],
-        "original_label_type": ["samsung_hr","oura_hr","hr", "spo2", "bvp_sdnn","resp_rr","BP_sys","BP_dia"],
-        "label_type": ["samsung_hr"],
+        "input_type": ["ir-filtered-rr"],
+        "original_label_type": ["samsung_hr","oura_hr","hr","spo2", "bvp_sdnn","resp_rr","BP_sys","BP_dia"],
+        "label_type": ["resp_rr"],
         "shuffle": true,
         "batch_size": 128,
         "quality_assessment": {
@@ -34,7 +34,7 @@
         "window_duration": 30,
         "experiment": ["Health", "Daily","Sport"],
         "original_task": ["sitting", "spo2", "deepsquat", "talking", "shaking_head", "standing", "striding"],
-        "task": ["spo2"],
+        "task": ["sitting", "spo2", "deepsquat", "talking", "shaking_head", "standing", "striding"],
         "accel_combined": false,
         "accel_combined_method": "magnitude"
     },
@@ -46,7 +46,7 @@
         "type": "ML", 
         "model_path": null,
         "params":{
-            "in_channels": 5,  
+            "in_channels": 1,  
             "base_filters": 32,
             "kernel_size": 5,
             "stride": 1,
