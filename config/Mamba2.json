@@ -1,5 +1,5 @@
 {
-    "exp_name": "transformer",
+    "exp_name": "mamba2",
     "mode": "train",
     "split":{
         "train": ["00009", "00012", "00005", "00020", "00031", "00022", "00029", "00016", "00026", "00024", "00014", "00010", "00011", "00027", "00008", "00019", "00030", "00003", "00025", "00006", "00033"], 
@@ -17,7 +17,7 @@
         "input_type": ["ir-filtered", "red-filtered","ax-raw","ay-raw","az-raw"],
         "label_type": ["samsung_hr","oura_hr","hr", "spo2", "bvp_sdnn","resp_rr","BP_sys","BP_dia"],
         "shuffle": true,
-        "batch_size": 32,
+        "batch_size": 16,
         "quality_assessment": {
             "method": "elgendi",
             "th": 0.8

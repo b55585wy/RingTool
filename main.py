@@ -156,6 +156,7 @@ def main(config_path):
             # load model
             model = load_model(config['method'])
             logging.info(f"Successfully loaded model {config['method']}")
+            logging.info(f"Model params: {sum(p.numel() for p in model.parameters())}")
             logging.info(f"Running experiment with split config: {split_config}")
 
             trainer = load_trainer(model, config['method']['name'], config)
@@ -205,7 +206,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Process ring PPG data using FFT.')
     #parser.add_argument('--config', type=str, default="./config/Resnet.json", help='Path to the configuration JSON file.')
-    parser.add_argument('--config', type=str, default="./config/Transformer.json", help='Path to the configuration JSON file.')
+    #parser.add_argument('--config', type=str, default="./config/Transformer.json", help='Path to the configuration JSON file.')
+    parser.add_argument('--config', type=str, default="./config/Mamba2.json", help='Path to the configuration JSON file.')
     #parser.add_argument('--config', type=str, default="./config/InceptionTime.json", help='Path to the configuration JSON file.')
     args = parser.parse_args()
     # Load the configuration
