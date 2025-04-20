@@ -15,8 +15,8 @@ peak,test,ring2,,samsung_hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 't
 peak,test,ring1,,samsung_hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",peak,200,0.001,mse,128,55,13.15±1.99,19.65±8.94,17.44±2.68,0.53±0.12
 peak,test,ring2,,resp_rr,['ir-filtered-rr'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",peak,200,0.001,mse,128,366,3.01±0.15,4.17±1.31,17.05±0.93,0.41±0.05
 peak,test,ring1,,resp_rr,['ir-filtered-rr'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",peak,200,0.001,mse,128,554,2.72±0.11,3.73±1.07,16.55±0.91,0.52±0.04
-ratio,test,ring2,,spo2,"['ir-raw', 'red-raw']",['spo2'],ratio,200,0.001,mse,128,201,3.46±0.21,4.56±1.50,3.83±0.25,0.20±0.07
-ratio,test,ring1,,spo2,"['ir-raw', 'red-raw']",['spo2'],ratio,200,0.001,mse,128,369,6.95±0.24,8.34±2.11,7.60±0.27,0.05±0.05
+ratio,test,ring2,,spo2,"['ir-raw', 'red-raw']",['spo2'],ratio,200,0.001,mse,128,201,3.24±0.15,3.86±1.23,3.52±0.17,0.40±0.07
+ratio,test,ring1,,spo2,"['ir-raw', 'red-raw']",['spo2'],ratio,200,0.001,mse,128,369,3.37±0.14,4.29±1.24,3.66±0.16,0.33±0.05
 resnet-latest,train,ring1,Fold-1,resp_rr,"['ir-filtered-rr', 'red-filtered-rr', 'ax-filtered-rr', 'ay-filtered-rr', 'az-filtered-rr']","['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",resnet,200,0.001,mse,128,81,5.86±0.33,6.56±2.00,33.16±1.99,0.22±0.11
 resnet-latest,train,ring2,Fold-1,resp_rr,"['ir-filtered-rr', 'red-filtered-rr', 'ax-filtered-rr', 'ay-filtered-rr', 'az-filtered-rr']","['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",resnet,200,0.001,mse,128,69,3.54±0.32,4.40±1.80,21.30±3.36,-0.18±0.12
 resnet-latest,train,ring1,Fold-1,hr,"['ir-filtered', 'red-filtered', 'ax-standardized', 'ay-standardized', 'az-standardized']","['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",resnet,200,0.001,mse,128,219,7.08±0.57,11.05±4.12,9.64±0.78,0.71±0.05

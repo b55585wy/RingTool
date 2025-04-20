@@ -12,7 +12,6 @@ from utils.utils import calculate_metrics, plot_and_save_metrics,save_metrics_to
 from unsupervised.hr.hr import get_hr
 from unsupervised.rr.rr import get_rr
 from unsupervised.spo2.spo2 import get_spo2
-
 from torch.cuda.amp import autocast, GradScaler
 
 class BaseTrainer:
@@ -91,11 +90,9 @@ class UnsupervisedTester(BaseTrainer):
                 elif task == "resp_rr":
                     prediction = get_rr(signal, method=algorithm)
                 elif task == "spo2":
-                    # print(signal.shape)
-                    # Split the signal into two columns - main signal and ppg_ir
-                    ppg_red = signal[:, 1]
                     ppg_ir = signal[:, 0]
-                    prediction = get_spo2(ppg_red, ppg_ir, method=algorithm)
+                    ppg_red = signal[:, 1]
+                    prediction = get_spo2(ppg_ir, ppg_red, ring_type=self.config["dataset"].get("ring_type", "ring1"),method=algorithm)
                 else:
                     raise ValueError(f"Unsupported task: {task}")
                 
