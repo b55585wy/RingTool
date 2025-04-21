@@ -32,8 +32,7 @@ from trainer.load_trainer import load_trainer
 4. Support InceptionTime/Mamba/transformer -wzy
 '''
 
-# DATA_PATH = "/home/disk2/disk/3/tjk/RingData/Preprocessed/rings"
-DATA_PATH = "/home/dykderrick/mega/datasets/Preprocessed/rings"
+DATA_PATH = "/home/disk2/disk/3/tjk/RingData/Preprocessed/rings"
 
 
 def generate_split_config(mode: str, config: Dict):
@@ -253,9 +252,9 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Process ring PPG data using FFT.')
     parser.add_argument('--batch-configs-dir', type=str, default=None, help='Path to the configuration JSON files directory. Will execute all exps in the dir.')
-    # parser.add_argument('--config', type=str, default="./config/Resnet.json", help='Path to the configuration JSON file.')
+    parser.add_argument('--config', type=str, default="./config/Resnet.json", help='Path to the configuration JSON file.')
     # parser.add_argument('--config', type=str, default="./config/Transformer.json", help='Path to the configuration JSON file.')
-    parser.add_argument('--config', type=str, default="./config/Mamba2.json", help='Path to the configuration JSON file.')
+    # parser.add_argument('--config', type=str, default="./config/Mamba2.json", help='Path to the configuration JSON file.')
     # parser.add_argument('--config', type=str, default="./config/InceptionTime.json", help='Path to the configuration JSON file.')
     args = parser.parse_args()
     
