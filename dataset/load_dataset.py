@@ -9,11 +9,8 @@ import torch
 from torch.utils.data import Dataset
 from tqdm import tqdm
 
-from utils.utils import (
-    calculate_metrics,
-    extract_accel_features_cuda,
-    save_metrics_to_csv,
-)
+from utils.accel_features import extract_accel_features_cuda
+from utils.utils import calculate_metrics, save_metrics_to_csv
 
 accel_channels = {
     "ax-raw","ax-filtered","ax-standardized","ax-difference","ax-welch","ax-filtered-rr","ax-welch-rr",
