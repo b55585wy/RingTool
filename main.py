@@ -15,9 +15,12 @@ from torch.utils.data import DataLoader
 
 from dataset.load_dataset import DatasetType, load_dataset
 from nets.load_model import load_model
-from notifications.slack import send_slack_message, setup_slack
+from notifications.slack import (
+    format_results_to_slack_blocks,
+    send_slack_message,
+    setup_slack,
+)
 from trainer.load_trainer import load_trainer
-from utils.markdown import format_results_to_markdown
 
 # TODO: 
 '''
@@ -251,12 +254,13 @@ def do_run_experiment(config_path: str, send_notification_slack=False):
         if send_notification_slack:
             client = setup_slack()
             if all_test_results: # Check if there are results to format
-                results_markdown = format_results_to_markdown(all_test_results)
+                slack_msg_blocks = format_results_to_slack_blocks(all_test_results[0])  # TODO: Handle multiple tasks if needed
                 # Use backticks for experiment name for better visibility
-                message = f"✅ Experiment `{exp_name}` finished successfully. Here are the results: \n\n {results_markdown}"
+                message = f"✅ Experiment `{exp_name}` finished successfully. Here are the results.\n"
             else: # Handle cases with no specific test results (e.g., unsupervised run finished)
                 message = f"✅ Experiment `{exp_name}` finished successfully. (No specific test results to display)."
-            send_slack_message(client, "#training-notifications", message)
+                slack_msg_blocks = None
+            send_slack_message(client, "#training-notifications", message, blocks=slack_msg_blocks)
             
 
     except Exception as e:
