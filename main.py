@@ -17,7 +17,7 @@ from dataset.load_dataset import DatasetType, load_dataset
 from nets.load_model import load_model
 from notifications.slack import send_slack_message, setup_slack
 from trainer.load_trainer import load_trainer
-from utils.utils import format_results_to_markdown
+from utils.markdown import format_results_to_markdown
 
 # TODO: 
 '''
