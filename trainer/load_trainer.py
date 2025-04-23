@@ -18,18 +18,19 @@ from utils.utils import calculate_metrics, plot_and_save_metrics, save_metrics_t
 class BaseTrainer:
     def __init__(self, model, config: Dict):
         self.config = config
-
-        model_name = SupportedSupervisedModels(config["method"]["name"].lower())  # Convert to enum
-        if model_name in MODEL_CLASSES:
-            self.model = model
-            self.device = torch.device(
-                "cuda:" + str(config["train"]["device"])
-                if torch.cuda.is_available() and config["train"]["device"] != "cpu"
-                else "cpu"
-            )
-            self.model.to(self.device)
-        else:
-            raise ValueError(f"Unsupported model: {config['method']['name']}")
+        if config["method"]["type"] == "ML":
+            model_name = SupportedSupervisedModels(config["method"]["name"].lower())  # Convert to enum
+        
+            if model_name in MODEL_CLASSES:
+                self.model = model
+                self.device = torch.device(
+                    "cuda:" + str(config["train"]["device"])
+                    if torch.cuda.is_available() and config["train"]["device"] != "cpu"
+                    else "cpu"
+                )
+                self.model.to(self.device)
+            else:
+                raise ValueError(f"Unsupported model: {config['method']['name']}")
 
     def load_optimizer(self):
         """加载优化器"""

@@ -82,7 +82,7 @@ class LoadDataset(Dataset):
             target_length = 3000
         min_length = int(target_length * 0.95)  # 95% of target length
         # Properly access nested quality threshold
-        quality_th = self.config.get("quality_assessment", {}).get("th", 0.8)  # Default quality threshold is 0.8
+        quality_th = self.config.get("dataset", {}).get("quality_assessment", {}).get("th", 0.8)  # Default quality threshold is 0.8
         commercial_hr_label = []
         accel_combined = self.config.get("dataset", {}).get("accel_combined", False)
         combined_method = self.config.get("dataset", {}).get("accel_combined_method", "magnitude")

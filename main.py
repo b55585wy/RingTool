@@ -22,15 +22,8 @@ from notifications.slack import (
 )
 from trainer.load_trainer import load_trainer
 
-# TODO: 
-'''
-1. Unspuervised methods for hr spo2 rr BP
-2. multi-channels optmize with IMU -dyk
-3. task -finetune -dyk
-4. Support InceptionTime/Mamba/transformer -wzy
-'''
 
-DATA_PATH = "/home/dykderrick/mega/datasets/Preprocessed/rings"
+DATA_PATH = "/home/disk2/disk/3/tjk/RingData/Preprocessed/rings"
 
 
 def generate_split_config(mode: str, config: Dict):
