@@ -23,7 +23,7 @@ from notifications.slack import (
 from trainer.load_trainer import load_trainer
 from utils.utils import calculate_avg_metrics, save_metrics_to_csv
 
-DATA_PATH = "/home/disk2/disk/3/tjk/RingData/Preprocessed/rings"
+DATA_PATH = "/home/disk2/disk/3/tjk/RingData/PreprocessedV2/rings"
 
 AVAILABLE_MODES = ["train", "test", "5fold"]
 
@@ -32,7 +32,7 @@ def generate_split_config(mode: str, split: Dict) -> List[Dict]:
     split_config = []
     # 5-fold cross-validation.
     # if test set is fold 4, then valid set is fold 5 and train set is 1, 2, 3 train set is fold 1, 2, 3
-    if mode == "5fold":
+    if mode == "5fold" or mode == "test":
         for i in range(5):
             test_fold = i + 1  # Folds are 1-indexed
             valid_fold = (i + 1) % 5 + 1  # Wraps around to fold 1 after fold 5
@@ -47,7 +47,7 @@ def generate_split_config(mode: str, split: Dict) -> List[Dict]:
                     train_p.extend(split['5-Fold'][f'Fold-{j}'])
             
             split_config.append({"train": train_p, "valid": valid_p, "test": test_p, "fold": f"Fold-{test_fold}"})
-    elif mode == "train" or mode == "test":
+    elif mode == "train":
         # split into train, valid, test
         split_config.append({"train": split['train'], "valid": split['valid'], "test": split['test'], "fold": "Fold-1"})
     
@@ -259,7 +259,7 @@ def do_run_experiment(config_path: str, send_notification_slack=False):
 
         # Set up logging
         os.makedirs("logs", exist_ok=True)
-        timestamp = datetime.datetime.now().strftime("%m%d%H%M")
+        timestamp = datetime.datetime.now().strftime("%m%d-%H%M%S")
         log_filename = f"logs/rtool-{exp_name}-{timestamp}.log"
 
         # Remove existing handlers if any, to avoid duplicate logs when running multiple configs

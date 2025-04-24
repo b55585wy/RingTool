@@ -1,6 +1,6 @@
 {
     "exp_name": "resnet-latest",
-    "mode": "train",
+    "mode": "test",
     "split":{
         "train": ["00009", "00012", "00005", "00020", "00031", "00022", "00029", "00016", "00026", "00024", "00014", "00010", "00011", "00027", "00008", "00019", "00030", "00003", "00025", "00006", "00033"], 
         "valid": ["00013", "00018", "00002", "00032", "00028", "00021", "00000"], 
@@ -21,20 +21,20 @@
             "ay-raw","ay-filtered","ay-standardized","ay-difference","ay-welch","ay-filtered-rr","ay-welch-rr",
             "az-raw","az-filtered","az-standardized","az-difference","az-welch","az-filtered-rr","az-welch-rr"
         ],
-        "input_type": ["ir-filtered-rr"],
+        "input_type": ["ir-filtered"],
         "original_label_type": ["samsung_hr","oura_hr","hr","spo2", "bvp_sdnn","resp_rr","BP_sys","BP_dia"],
-        "label_type": ["resp_rr"],
+        "label_type": ["hr"],
         "shuffle": true,
         "batch_size": 128,
         "quality_assessment": {
             "method": "elgendi",
-            "th": 0.8
+            "th": 0
         },
         "target_fs": 100,
         "window_duration": 30,
         "experiment": ["Health", "Daily","Sport"],
         "original_task": ["sitting", "spo2", "deepsquat", "talking", "shaking_head", "standing", "striding"],
-        "task": ["sitting", "spo2", "deepsquat", "talking", "shaking_head", "standing", "striding"],
+        "task": ["striding"],
         "accel_combined": false,
         "accel_combined_method": "magnitude"
     },
