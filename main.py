@@ -115,7 +115,8 @@ def unsupervised(config_path):
                 config=config,
                 raw_data=all_data,
                 channels=channels,
-                task=task
+                task=task,
+                scenarios=config["dataset"]["task"]
             )
             all_loader = DataLoader(all_dataset, batch_size=config["dataset"]["batch_size"], shuffle=False)
             test_results = tester.test(all_loader, None, task)
