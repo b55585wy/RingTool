@@ -13,6 +13,7 @@ import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 
+from constants.experiment import ExperimentMode
 from dataset.load_dataset import DatasetType, load_dataset
 from nets.load_model import load_model
 from notifications.slack import (
@@ -23,16 +24,12 @@ from notifications.slack import (
 from trainer.load_trainer import load_trainer
 from utils.utils import calculate_avg_metrics, save_metrics_to_csv
 
-DATA_PATH = "/home/disk2/disk/3/tjk/RingData/PreprocessedV2/rings"
-
-AVAILABLE_MODES = ["train", "test", "5fold"]
-
 
 def generate_split_config(mode: str, split: Dict) -> List[Dict]:
     split_config = []
     # 5-fold cross-validation.
     # if test set is fold 4, then valid set is fold 5 and train set is 1, 2, 3 train set is fold 1, 2, 3
-    if mode == "5fold" or mode == "test":
+    if mode == ExperimentMode.FIVE_FOLD.value or mode == ExperimentMode.TEST.value:
         for i in range(5):
             test_fold = i + 1  # Folds are 1-indexed
             valid_fold = (i + 1) % 5 + 1  # Wraps around to fold 1 after fold 5
@@ -47,13 +44,13 @@ def generate_split_config(mode: str, split: Dict) -> List[Dict]:
                     train_p.extend(split['5-Fold'][f'Fold-{j}'])
             
             split_config.append({"train": train_p, "valid": valid_p, "test": test_p, "fold": f"Fold-{test_fold}"})
-    elif mode == "train":
+    elif mode == ExperimentMode.TRAIN.value:
         # split into train, valid, test
         split_config.append({"train": split['train'], "valid": split['valid'], "test": split['test'], "fold": "Fold-1"})
     
     else:
-        logging.error(f"Invalid mode. Choose from {AVAILABLE_MODES}.")
-        raise ValueError(f"Invalid mode. Choose from {AVAILABLE_MODES}.")
+        logging.error(f"Invalid mode. Choose from {[mode.value for mode in ExperimentMode]}.")
+        raise ValueError(f"Invalid mode. Choose from {[mode.value for mode in ExperimentMode]}.")
     return split_config
 
 
@@ -91,20 +88,19 @@ def set_seed(seed: int):
         torch.cuda.manual_seed_all(seed)
 
 
-def unsupervised(config_path):   
-    config = load_config(config_path)
+def unsupervised(config: Dict, data_path: str) -> None:   
     # load all data
-    all_data = find_all_data(DATA_PATH, config["dataset"]["ring_type"])
+    all_data = find_all_data(data_path, config["dataset"]["ring_type"])
     subject_list = list(all_data.keys())
     all_data = pd.concat(all_data.values())
     logging.info(f"Found {len(subject_list)} subjects in the data folder.") 
     # set seed
     set_seed(config["seed"])
     # only test on the whole dataset without split, unsupervised methods
-    if config["mode"] not in AVAILABLE_MODES:
-        logging.error(f"Invalid mode: {config['mode']}. Choose from {AVAILABLE_MODES}.")
-        raise ValueError(f"Invalid mode. Choose from {AVAILABLE_MODES}.")
-    if config["mode"] == "test" and config["method"]["type"]== "unsupervised":
+    if config["mode"] not in [mode.value for mode in ExperimentMode]:
+        logging.error(f"Invalid mode: {config['mode']}. Choose from {[mode.value for mode in ExperimentMode]}.")
+        raise ValueError(f"Invalid mode. Choose from {[mode.value for mode in ExperimentMode]}.")
+    if config["mode"] == ExperimentMode.TEST.value and config["method"]["type"]== "unsupervised":
         # load dataset
         channels = config["dataset"]["input_type"]
         tasks = config["dataset"]["label_type"]
@@ -123,20 +119,19 @@ def unsupervised(config_path):
             logging.info(f"Test results for task {task}: {test_results}")
 
 
-def supervised(config_path: str) -> List[Tuple[str, str, Dict]]:
-    config = load_config(config_path)
+def supervised(config: Dict, data_path: str) -> List[Tuple[str, str, Dict]]:
     mode = config["mode"]  # "train", "test", "5fold"
     exp_name = config.get("exp_name")
-    all_data = find_all_data(DATA_PATH, config["dataset"]["ring_type"])
+    all_data = find_all_data(data_path, config["dataset"]["ring_type"])
     subject_list = list(all_data.keys())
 
     logging.info(f"Found {len(subject_list)} subjects in the data folder.")
     # set seed
     set_seed(config["seed"])
     # training 
-    if mode not in AVAILABLE_MODES:
-        logging.error(f"Invalid mode: {mode}. Choose from {AVAILABLE_MODES}.")
-        raise ValueError(f"Invalid mode. Choose from {AVAILABLE_MODES}.")
+    if mode not in [mode.value for mode in ExperimentMode]:
+        logging.error(f"Invalid mode: {mode}. Choose from {[mode.value for mode in ExperimentMode]}.")
+        raise ValueError(f"Invalid mode. Choose from {[mode.value for mode in ExperimentMode]}.")
     # check if the key in split_config is in the subject list, save the cross into split_config
     # Correct the call to generate_split_config
     split = config.get("split", {})
@@ -164,7 +159,7 @@ def supervised(config_path: str) -> List[Tuple[str, str, Dict]]:
 
             checkpoint_path = None
             # for testing, use the checkpoint path
-            if mode == "test":
+            if mode == ExperimentMode.TEST.value:
                 checkpoint_dir = os.path.join("models", exp_name, task, current_fold)
                 best_checkpoint_path = os.path.join(checkpoint_dir, f"{exp_name}_{task}_{current_fold}_best.pt")
                 if os.path.exists(best_checkpoint_path):
@@ -184,7 +179,7 @@ def supervised(config_path: str) -> List[Tuple[str, str, Dict]]:
             
             train_task = "hr" if task in ["oura_hr", "samsung_hr"] else task
 
-            if "train" in split_config and (mode == "train" or mode == "5fold"):
+            if "train" in split_config and (mode == ExperimentMode.TRAIN.value or mode == ExperimentMode.FIVE_FOLD.value):
                 # prepare training dataset
                 train_data = pd.concat([all_data[p] for p in split_config["train"]])
                 train_dataset = load_dataset(
@@ -246,37 +241,40 @@ def supervised(config_path: str) -> List[Tuple[str, str, Dict]]:
     return all_test_results
 
 
-def do_run_experiment(config_path: str, send_notification_slack=False):
+def setup_logging(exp_name: str):
+    # Set up logging
+    os.makedirs("logs", exist_ok=True)
+    timestamp = datetime.datetime.now().strftime("%m%d-%H%M%S")
+    log_filename = f"logs/rtool-{exp_name}-{timestamp}.log"
+
+    # Remove existing handlers if any, to avoid duplicate logs when running multiple configs
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_filename),
+            logging.StreamHandler()
+        ]
+    )
+    logging.getLogger('matplotlib').setLevel(logging.INFO) # Reduce matplotlib verbosity
+    logging.info(f"Starting experiment: {exp_name} from config: {config_path}")
+    logging.info(f"Logging to: {log_filename}")
+
+
+def do_run_experiment(config: Dict, data_path: str, send_notification_slack=False):
     """
     Run the experiment based on the provided configuration file.
     Args:
-        config_path (str): Path to the configuration JSON file.
+        config (Dict): experiment config.
         send_notification_slack (bool): If True, send notification to Slack.
     """
     try:
-        config = load_config(config_path)
         exp_name = config.get("exp_name", os.path.splitext(os.path.basename(config_path))[0]) # Use filename if exp_name not in config
 
-        # Set up logging
-        os.makedirs("logs", exist_ok=True)
-        timestamp = datetime.datetime.now().strftime("%m%d-%H%M%S")
-        log_filename = f"logs/rtool-{exp_name}-{timestamp}.log"
-
-        # Remove existing handlers if any, to avoid duplicate logs when running multiple configs
-        for handler in logging.root.handlers[:]:
-            logging.root.removeHandler(handler)
-
-        logging.basicConfig(
-            level=logging.DEBUG,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            handlers=[
-                logging.FileHandler(log_filename),
-                logging.StreamHandler()
-            ]
-        )
-        logging.getLogger('matplotlib').setLevel(logging.INFO) # Reduce matplotlib verbosity
-        logging.info(f"Starting experiment: {exp_name} from config: {config_path}")
-        logging.info(f"Logging to: {log_filename}")
+        setup_logging(exp_name)
 
         start_time = time.time()
 
@@ -284,10 +282,10 @@ def do_run_experiment(config_path: str, send_notification_slack=False):
 
         if config.get("method", {}).get("type") == "unsupervised":
             logging.info("Running unsupervised method.")
-            unsupervised(config_path)
+            unsupervised(config, data_path)
         else:
             logging.info("Running supervised method.")
-            all_test_results = supervised(config_path)
+            all_test_results = supervised(config, data_path)
 
         end_time = time.time()
         logging.info(f"Experiment {exp_name} finished in {end_time - start_time:.2f} seconds.")
@@ -319,25 +317,32 @@ if __name__ == '__main__':
     warnings.filterwarnings('ignore', category=UserWarning, module='torch.nn')
 
     parser = argparse.ArgumentParser(description='Process ring PPG data using FFT.')
+    parser.add_argument('--data-path', type=str, default="/home/disk2/disk/3/tjk/RingData/PreprocessedV2/rings", help='Path to the data folder.')
     parser.add_argument('--batch-configs-dir', type=str, default=None, help='Path to the configuration JSON files directory. Will execute all exps in the dir.')
     parser.add_argument('--send-notification-slack', action="store_true", help='Send notification to slack.')
     parser.add_argument('--config', type=str, default=config_path, help='Path to the configuration JSON file.')
     args = parser.parse_args()
+
+    data_path = args.data_path
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(f"Data path {data_path} does not exist.")
+    if not os.path.isdir(data_path):
+        raise NotADirectoryError(f"Data path {data_path} is not a directory.")
     
     batch_configs_dir = args.batch_configs_dir
     send_notification_slack = args.send_notification_slack
     if batch_configs_dir:
-        logging.info(f"Running experiments from directory: {batch_configs_dir}")
         config_files = [f for f in os.listdir(batch_configs_dir) if f.endswith(".json")]
-        if not config_files:
-            logging.warning(f"No JSON config files found in {batch_configs_dir}")
-        else:
-            for config_file in config_files:
-                full_config_path = os.path.join(batch_configs_dir, config_file)
-                do_run_experiment(full_config_path, send_notification_slack)
+        for config_file in config_files:
+            full_config_path = os.path.join(batch_configs_dir, config_file)
+
+            config = load_config(full_config_path)
+
+            do_run_experiment(config, data_path, send_notification_slack)
         logging.info("Finished all experiments in batch.")
     elif args.config:
-        do_run_experiment(args.config, send_notification_slack)
+        config = load_config(args.config)
+        do_run_experiment(config, data_path, send_notification_slack)
     else:
         # This case should ideally not happen if argparse requires 'config' when 'batch_configs_dir' is not given,
         # but added for robustness.
