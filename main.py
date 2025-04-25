@@ -242,7 +242,7 @@ def supervised(config: Dict, data_path: str) -> List[Tuple[str, str, Dict]]:
     return all_test_results
 
 
-def setup_logging(exp_name: str):
+def setup_logging(exp_name: str, config: Dict) -> None:
     # Set up logging
     os.makedirs("logs", exist_ok=True)
     timestamp = datetime.datetime.now().strftime("%m%d-%H%M%S")
@@ -261,7 +261,8 @@ def setup_logging(exp_name: str):
         ]
     )
     logging.getLogger('matplotlib').setLevel(logging.INFO) # Reduce matplotlib verbosity
-    logging.info(f"Starting experiment: {exp_name} from config: {config_path}")
+    logging.info(f"Starting experiment: {exp_name}.")
+    logging.debug(f"Config: {json.dumps(config, indent=2)}")
     logging.info(f"Logging to: {log_filename}")
 
 
@@ -273,9 +274,9 @@ def do_run_experiment(config: Dict, data_path: str, send_notification_slack=Fals
         send_notification_slack (bool): If True, send notification to Slack.
     """
     try:
-        exp_name = config.get("exp_name", os.path.splitext(os.path.basename(config_path))[0]) # Use filename if exp_name not in config
+        exp_name = config.get("exp_name")
 
-        setup_logging(exp_name)
+        setup_logging(exp_name, config)
 
         start_time = time.time()
 
