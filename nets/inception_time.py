@@ -122,7 +122,7 @@ class InceptionTime(nn.Module):
     """
     def __init__(self, in_channels=1, out_dim=200, num_blocks=2, num_inception_per_block=3, 
                  kernel_sizes=[9, 19, 39], bottleneck_channels=32, use_residual=True, 
-                 channels_first=False, verbose=False, backbone=False):
+                 channels_first=False, verbose=False, backbone=False, final_proj='mean'):
         super(InceptionTime, self).__init__()
         self.out_dim = out_dim
         self.backbone = backbone
@@ -144,9 +144,6 @@ class InceptionTime(nn.Module):
             )
             self.blocks.append(block)
         
-        # Global average pooling
-        self.gap = nn.AdaptiveAvgPool1d(1)
-        
         # Output layers
         final_channels = 64 * (len(kernel_sizes) + 1)
         self.final_bn = nn.BatchNorm1d(final_channels)
@@ -157,7 +154,8 @@ class InceptionTime(nn.Module):
         
         # Feature output for backbone mode
         self.dense2 = nn.Linear(final_channels, self.out_dim)
-    
+        self.final_proj = final_proj
+
     def forward(self, x):
         # Handle different input formats
         if not self.channels_first:
@@ -176,8 +174,13 @@ class InceptionTime(nn.Module):
         x = self.final_bn(x)
         x = self.final_relu(x)
         
-        # Global average pooling
-        x = self.gap(x).squeeze(-1)
+        if self.final_proj == 'last':
+            x = x[...,-1]
+        else:
+            # Global Average Pooling
+            x = x.mean(dim=-1) # Pool across the sequence length dimension
+
+        x = x.squeeze(-1)
         
         if self.verbose:
             print('after GAP', x.shape)

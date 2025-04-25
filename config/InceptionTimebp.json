@@ -1,6 +1,6 @@
 {
-    "exp_name": "resnet-latest",
-    "mode": "test",
+    "exp_name": "inception-timebp",
+    "mode": "5fold",
     "split":{
         "train": ["00009", "00012", "00005", "00020", "00031", "00022", "00029", "00016", "00026", "00024", "00014", "00010", "00011", "00027", "00008", "00019", "00030", "00003", "00025", "00006", "00033"], 
         "valid": ["00013", "00018", "00002", "00032", "00028", "00021", "00000"], 
@@ -13,7 +13,7 @@
     }
     },
     "dataset":{
-        "ring_type": "ring2",
+        "ring_type": "ring1",
         "all_input_type": [
             "ir-raw","ir-filtered","ir-standardized","ir-difference","ir-welch","ir-filtered-rr","ir-welch-rr",
             "red-raw","red-filtered","red-standardized","red-difference","red-welch","red-filtered-rr","red-welch-rr",
@@ -21,9 +21,9 @@
             "ay-raw","ay-filtered","ay-standardized","ay-difference","ay-welch","ay-filtered-rr","ay-welch-rr",
             "az-raw","az-filtered","az-standardized","az-difference","az-welch","az-filtered-rr","az-welch-rr"
         ],
-        "input_type": ["ir-filtered"],
+        "input_type": ["ir-filtered", "red-filtered"],
         "original_label_type": ["samsung_hr","oura_hr","hr","spo2", "bvp_sdnn","resp_rr","BP_sys","BP_dia"],
-        "label_type": ["hr"],
+        "label_type": ["BP_sys","BP_dia"],
         "shuffle": true,
         "batch_size": 128,
         "quality_assessment": {
@@ -33,31 +33,28 @@
         "target_fs": 100,
         "window_duration": 30,
         "experiment": ["Health", "Daily","Sport"],
-        "original_task": ["sitting", "spo2", "deepsquat", "talking", "shaking_head", "standing", "striding"],
-        "task": ["standing"],
+        "all_tasks": ["sitting", "spo2", "deepsquat", "talking", "shaking_head", "standing", "striding"],
+        "task": ["sitting", "spo2", "deepsquat", "talking", "shaking_head", "standing", "striding"],
         "accel_combined": false,
         "accel_combined_method": "magnitude"
     },
     "seed": 42,
-    "csv_path": "csv/resnet/resnet.csv",
-    "img_path": "img/resnet",
+    "csv_path": "csv/inception_time/inception_time.csv",
+    "img_path": "img/inception_time",
     "method": {
-        "name": "resnet",
+        "name": "inception_time",
         "type": "ML", 
         "model_path": null,
         "params":{
-            "in_channels": 1,  
-            "base_filters": 32,
-            "kernel_size": 5,
-            "stride": 1,
-            "groups": 1,
-            "n_block": 8,
-            "downsample_gap": 2,
-            "increasefilter_gap": 2,
-            "use_do": true,
-            "dropout_p": 0.3,
-            "use_final_do": false,
-            "final_dropout_p": 0.5,
+            "in_channels": 2,
+            "out_dim": 200,
+            "num_blocks": 1,
+            "num_inception_per_block": 2,
+            "kernel_sizes": [9, 19],
+            "bottleneck_channels": 16,
+            "use_residual": true,
+            "channels_first": false,
+            "verbose": false,
             "backbone": false,
             "final_proj":"last"
         }
@@ -70,7 +67,7 @@
         "optimizer": "adam",
         "early_stopping": {
             "monitor": "val_loss",
-            "patience": 200,
+            "patience": 20,
             "mode": "min"
         },
         "scheduler": {

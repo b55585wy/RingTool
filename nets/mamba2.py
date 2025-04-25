@@ -79,7 +79,7 @@ class TaoMamba(nn.Module):
         x = self.mamba(x)  # [batch, seq_len+1, dim]
         
         cls_output = x[:, -1]  # [batch, dim]
-        return self.cls_head(cls_output)[:,0], x
+        return torch.exp(self.cls_head(cls_output)[:, 0]), x
 
 class Rearrange(nn.Module):
     def __init__(self, pattern, **kw):

@@ -161,7 +161,7 @@ class ResNet1D(nn.Module):
         output_dim: output dimension (1 for regression, n_classes for classification) - Modified default to 1 for regression
     """
     # Add use_se and se_reduction to __init__
-    def __init__(self, in_channels, base_filters, kernel_size, stride, groups, n_block, downsample_gap=2, increasefilter_gap=4, use_bn=True, use_do=True, dropout_p=0.5, use_final_do=False, final_dropout_p=0.5, use_se=False, se_reduction=16, verbose=False, backbone=False, output_dim=1): # Default output_dim=1
+    def __init__(self, in_channels, base_filters, kernel_size, stride, groups, n_block, downsample_gap=2, increasefilter_gap=4, use_bn=True, use_do=True, dropout_p=0.5, use_final_do=False, final_dropout_p=0.5, use_se=False, se_reduction=16, verbose=False, backbone=False, output_dim=1, final_proj='mean'): # Default output_dim=1
         super(ResNet1D, self).__init__()
         self.out_dim = output_dim
         self.backbone = backbone
@@ -179,6 +179,7 @@ class ResNet1D(nn.Module):
         self.increasefilter_gap = increasefilter_gap
         self.use_se = use_se # Store use_se flag
         self.se_reduction = se_reduction # Store se_reduction
+        self.final_proj = final_proj
 
         # first block
         self.first_block_conv = MyConv1dPadSame(in_channels=in_channels, out_channels=base_filters, kernel_size=self.kernel_size, stride=1)
@@ -263,9 +264,11 @@ class ResNet1D(nn.Module):
             out = self.se_layer(out)
             if self.verbose:
                 print('after SE layer', out.shape)
-
-        # Global Average Pooling
-        out = out.mean(dim=-1) # Pool across the sequence length dimension
+        if self.final_proj == 'last':
+            out = out[...,-1]
+        else:
+            # Global Average Pooling
+            out = out.mean(dim=-1) # Pool across the sequence length dimension
         if self.verbose:
             print('final pooling', out.shape)
 

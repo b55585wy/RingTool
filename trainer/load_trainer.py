@@ -232,8 +232,8 @@ class SupervisedTrainer(BaseTrainer):
                     logging.error(f"NaN loss detected at epoch {epoch+1}, batch {idx}. Skipping optimizer step.")
                     # Optionally: investigate inputs/outputs/labels that caused NaN
                     # logging.error(f"Inputs max: {inputs.max()}, min: {inputs.min()}")
-                    # logging.error(f"Outputs: {outputs}")
-                    # logging.error(f"Labels: {labels}")
+                    #logging.error(f"Outputs: {outputs}")
+                    #logging.error(f"Labels: {labels}")
                     continue # Skip backpropagation for this batch if loss is NaN
 
                 scaled_loss = scaler.scale(loss)

@@ -1,6 +1,6 @@
 {
-    "exp_name": "resnet-latest",
-    "mode": "test",
+    "exp_name": "resnetspo2",
+    "mode": "5fold",
     "split":{
         "train": ["00009", "00012", "00005", "00020", "00031", "00022", "00029", "00016", "00026", "00024", "00014", "00010", "00011", "00027", "00008", "00019", "00030", "00003", "00025", "00006", "00033"], 
         "valid": ["00013", "00018", "00002", "00032", "00028", "00021", "00000"], 
@@ -13,7 +13,7 @@
     }
     },
     "dataset":{
-        "ring_type": "ring2",
+        "ring_type": "ring1",
         "all_input_type": [
             "ir-raw","ir-filtered","ir-standardized","ir-difference","ir-welch","ir-filtered-rr","ir-welch-rr",
             "red-raw","red-filtered","red-standardized","red-difference","red-welch","red-filtered-rr","red-welch-rr",
@@ -21,9 +21,9 @@
             "ay-raw","ay-filtered","ay-standardized","ay-difference","ay-welch","ay-filtered-rr","ay-welch-rr",
             "az-raw","az-filtered","az-standardized","az-difference","az-welch","az-filtered-rr","az-welch-rr"
         ],
-        "input_type": ["ir-filtered"],
+        "input_type": ["ir-filtered", "red-filtered"],
         "original_label_type": ["samsung_hr","oura_hr","hr","spo2", "bvp_sdnn","resp_rr","BP_sys","BP_dia"],
-        "label_type": ["hr"],
+        "label_type": ["spo2"],
         "shuffle": true,
         "batch_size": 128,
         "quality_assessment": {
@@ -34,9 +34,10 @@
         "window_duration": 30,
         "experiment": ["Health", "Daily","Sport"],
         "original_task": ["sitting", "spo2", "deepsquat", "talking", "shaking_head", "standing", "striding"],
-        "task": ["standing"],
+        "task": ["spo2"],
         "accel_combined": false,
-        "accel_combined_method": "magnitude"
+        "accel_combined_method": "magnitude",
+        "output_range":[70, 100]
     },
     "seed": 42,
     "csv_path": "csv/resnet/resnet.csv",
@@ -46,7 +47,7 @@
         "type": "ML", 
         "model_path": null,
         "params":{
-            "in_channels": 1,  
+            "in_channels": 2,  
             "base_filters": 32,
             "kernel_size": 5,
             "stride": 1,
@@ -70,7 +71,7 @@
         "optimizer": "adam",
         "early_stopping": {
             "monitor": "val_loss",
-            "patience": 200,
+            "patience": 20,
             "mode": "min"
         },
         "scheduler": {
