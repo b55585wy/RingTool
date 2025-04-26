@@ -50,7 +50,7 @@
         }
     },
     "train":{
-        "device": "1",
+        "device": "0",
         "epochs": 200,
         "lr": 1e-3,
         "criterion": "mse",
@@ -74,7 +74,7 @@
         }
     },
     "test":{
-        "device": "1",
+        "device": "0",
         "batch_size": 128,
         "metrics": ["mae", "rmse", "mape", "pearson"],
         "model_path": null,
