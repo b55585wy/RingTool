@@ -24,3 +24,9 @@ nohup.out
 .pytest_cache
 
 run.sh
+
+.csv-backup/
+
+.img-backup/
+
+.models-backup/

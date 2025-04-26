@@ -161,13 +161,17 @@ def supervised(config: Dict, data_path: str) -> List[Tuple[str, str, Dict]]:
             checkpoint_path = None
             # for testing, use the checkpoint path
             if mode == ExperimentMode.TEST.value:
-                checkpoint_dir = os.path.join("models", exp_name, task, current_fold)
-                best_checkpoint_path = os.path.join(checkpoint_dir, f"{exp_name}_{task}_{current_fold}_best.pt")
-                if os.path.exists(best_checkpoint_path):
-                    checkpoint_path = best_checkpoint_path
+                if config.get("test", {}).get("model_path"):
+                    checkpoint_path = config["test"]["model_path"]
+                    logging.info(f"Using checkpoint path from config model_path: {checkpoint_path}")
                 else:
+                    checkpoint_dir = os.path.join("models", exp_name, task, current_fold)
+                    checkpoint_path = os.path.join(checkpoint_dir, f"{exp_name}_{task}_{current_fold}_best.pt")
+                    logging.info(f"Using checkpoint path from default setting. checkpoint_path: {checkpoint_path}")
+                if not os.path.exists(checkpoint_path):
                     logging.error(f"Checkpoint {checkpoint_path} not found. Maybe you need to train the model first.")
                     raise FileNotFoundError(f"Checkpoint {checkpoint_path} not found. Maybe you need to train the model first.")
+
 
             logging.info(f"Now running experiment {current_fold} with split config: {split_config}")      
             # load model
