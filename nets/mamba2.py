@@ -16,8 +16,9 @@ class MLPProjector(nn.Module):
         return self.net(x)
 
 class MambaStack(nn.Module):
-    def __init__(self, dim, depth, d_state=64, d_conv=4, expand=2):
+    def __init__(self, dim, depth, d_state=64, d_conv=4, expand=2, dropout=0.2):
         super().__init__()
+        self.drop = nn.Dropout(dropout)
         self.layers = nn.ModuleList([
             Mamba2(
                 d_model=dim,
@@ -34,8 +35,8 @@ class MambaStack(nn.Module):
         for layer, norm in zip(self.layers, self.norms):
             y = layer(x)
             y = norm(y)
-            x = x+y
-        return x
+            x = x + y
+        return self.drop(x)
 
 class TaoMamba(nn.Module):
     def __init__(self, 
