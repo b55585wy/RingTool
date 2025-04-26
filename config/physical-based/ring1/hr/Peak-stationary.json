@@ -25,7 +25,7 @@
         "target_fs": 100,
         "window_duration": 30,
         "experiment": ["Health", "Daily","Sport"],
-        "task": ["sitting", "spo2", "deepsquat", "talking", "shaking_head", "standing", "striding"]
+        "task": ["sitting", "spo2", "talking", "shaking_head", "standing"]
     },
     "seed": 42,
     "csv_path": "csv/peak/peak.csv",
