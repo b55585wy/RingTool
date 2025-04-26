@@ -55,7 +55,8 @@ class TaoMamba(nn.Module):
         
         self.cls_head = nn.Sequential(
             nn.LayerNorm(dim),
-            nn.Linear(dim, num_classes)
+            nn.Linear(dim, dim//16),
+            nn.Linear(dim//16, num_classes)
         )
         
         self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
