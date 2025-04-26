@@ -22,3 +22,5 @@ nohup.out
 .ruff_cache
 
 .pytest_cache
+
+run.sh
