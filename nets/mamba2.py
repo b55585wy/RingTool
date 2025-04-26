@@ -23,13 +23,18 @@ class MambaStack(nn.Module):
                 d_model=dim,
                 d_state=d_state,
                 d_conv=d_conv,
-                expand=expand
+                expand=expand,
             ) for _ in range(depth)
+        ])
+        self.norms = nn.ModuleList([
+            nn.LayerNorm(dim) for _ in range(depth)
         ])
 
     def forward(self, x):
-        for layer in self.layers:
-            x = layer(x)
+        for layer, norm in zip(self.layers, self.norms):
+            y = layer(x)
+            y = norm(y)
+            x = x+y
         return x
 
 class TaoMamba(nn.Module):
@@ -46,7 +51,7 @@ class TaoMamba(nn.Module):
         super().__init__()
         
         self.projection = nn.Sequential(
-            nn.Unfold(kernel_size=(window_size, 1)),
+            nn.Unfold(kernel_size=(window_size,  1), stride=window_size),
             Rearrange('b (c w) l -> b l (w c)', w=window_size, c=in_channels),
             MLPProjector(input_dim=in_channels*window_size, output_dim=dim)
         )
@@ -55,8 +60,7 @@ class TaoMamba(nn.Module):
         
         self.cls_head = nn.Sequential(
             nn.LayerNorm(dim),
-            nn.Linear(dim, dim//16),
-            nn.Linear(dim//16, num_classes)
+            nn.Linear(dim, num_classes)
         )
         
         self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
@@ -80,7 +84,7 @@ class TaoMamba(nn.Module):
         x = self.mamba(x)  # [batch, seq_len+1, dim]
         
         cls_output = x[:, -1]  # [batch, dim]
-        return torch.exp(self.cls_head(cls_output)[:, 0]), x
+        return self.cls_head(cls_output)[:, 0], x
 
 class Rearrange(nn.Module):
     def __init__(self, pattern, **kw):
