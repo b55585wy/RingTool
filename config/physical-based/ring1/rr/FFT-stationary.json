@@ -1,5 +1,5 @@
 {
-    "exp_name": "fft",
+    "exp_name": "fft-stationary",
     "mode": "test",
     "split":{
         "train": ["00009", "00012", "00005", "00020", "00031", "00022", "00029", "00016", "00026", "00024", "00014", "00010", "00011", "00027", "00008", "00019", "00030", "00003", "00025", "00006", "00033"], 
@@ -14,18 +14,18 @@
     },
     "dataset":{
         "ring_type": "ring1",
-        "input_type": ["ir-filtered"],
-        "label_type": ["samsung_hr","oura_hr","hr"],
+        "input_type": ["ir-filtered-rr"],
+        "label_type": ["resp_rr"],
         "shuffle": true,
         "batch_size": 128,
         "quality_assessment": {
             "method": "elgendi",
-            "th": 0
+            "th": 0.8
         },
         "target_fs": 100,
         "window_duration": 30,
         "experiment": ["Health", "Daily","Sport"],
-        "task": ["sitting", "spo2", "deepsquat", "talking", "shaking_head", "standing", "striding"]
+        "task": ["sitting", "spo2", "talking", "shaking_head", "standing"]
     },
     "seed": 42,
     "csv_path": "csv/fft/fft.csv",

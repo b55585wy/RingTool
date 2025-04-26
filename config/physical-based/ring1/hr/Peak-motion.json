@@ -1,5 +1,5 @@
 {
-    "exp_name": "fft",
+    "exp_name": "peak-motion",
     "mode": "test",
     "split":{
         "train": ["00009", "00012", "00005", "00020", "00031", "00022", "00029", "00016", "00026", "00024", "00014", "00010", "00011", "00027", "00008", "00019", "00030", "00003", "00025", "00006", "00033"], 
@@ -25,13 +25,13 @@
         "target_fs": 100,
         "window_duration": 30,
         "experiment": ["Health", "Daily","Sport"],
-        "task": ["sitting", "spo2", "deepsquat", "talking", "shaking_head", "standing", "striding"]
+        "task": [ "deepsquat", "striding"]
     },
     "seed": 42,
-    "csv_path": "csv/fft/fft.csv",
-    "img_path": "img/fft",
+    "csv_path": "csv/peak/peak.csv",
+    "img_path": "img/peak",
     "method": {
-        "name": "fft",
+        "name": "peak",
         "type": "unsupervised", 
         "model_path": null,
         "params":{

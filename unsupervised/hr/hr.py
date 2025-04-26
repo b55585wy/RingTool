@@ -28,7 +28,7 @@ def get_hr(y, fs=100, min=30, max=180, method = 'fft'):
         y = y.flatten()
 
     if method == 'fft':
-        p, q = welch(y, fs, nfft=int(1e5/fs), nperseg=np.min((len(y)-1, 512)))
+        p, q = welch(y, fs, nfft=int(5e6/fs), nperseg=np.min((len(y)-1, 512)))
         fft_hr = p[(p>min/60)&(p<max/60)][np.argmax(q[(p>min/60)&(p<max/60)])]*60
         return fft_hr
     elif method == 'peak':

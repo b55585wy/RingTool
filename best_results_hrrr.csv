@@ -1,0 +1,72 @@
+exp_name,mode,ring_type,fold,task,input_type,dataset_task,method_name,epochs,lr,criterion,batch_size,sample_len,mae_with_std,rmse_with_std,mape_with_std,pearson_with_std
+fft,test,ring1,,hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",fft,200,0.001,mse,128,1929,9.32±0.40,19.80±4.81,10.90±0.43,0.36±0.02
+fft,test,ring2,,hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",fft,200,0.001,mse,128,1834,15.10±0.46,24.85±5.25,17.93±0.51,0.08±0.02
+fft,test,ring1,,oura_hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",fft,200,0.001,mse,128,243,13.30±1.47,26.40±10.62,14.49±1.41,0.24±0.06
+fft,test,ring2,,oura_hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",fft,200,0.001,mse,128,165,19.68±1.94,31.65±12.07,21.39±1.83,0.00±0.08
+fft,test,ring1,,oura_hr_com,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",fft,200,0.001,mse,128,237,10.09±1.13,20.05±9.23,14.67±2.23,0.47±0.06
+fft,test,ring2,,oura_hr_com,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",fft,200,0.001,mse,128,160,10.56±1.43,20.88±10.67,14.38±2.63,0.49±0.07
+fft,test,ring1,,samsung_hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",fft,200,0.001,mse,128,192,13.83±1.67,26.96±11.13,15.06±1.64,0.21±0.07
+fft,test,ring2,,samsung_hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",fft,200,0.001,mse,128,125,22.20±2.38,34.57±13.33,23.51±2.22,-0.10±0.09
+fft,test,ring1,,samsung_hr_com,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",fft,200,0.001,mse,128,186,9.90±1.25,19.72±9.49,13.94±2.34,0.56±0.06
+fft,test,ring2,,samsung_hr_com,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",fft,200,0.001,mse,128,120,9.94±1.57,19.78±10.91,13.32±2.83,0.61±0.07
+fft,test,ring1,,resp_rr,['ir-filtered-rr'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",fft,200,0.001,mse,128,1870,4.83±0.08,5.97±1.09,26.35±0.37,0.33±0.02
+fft,test,ring2,,resp_rr,['ir-filtered-rr'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",fft,200,0.001,mse,128,940,4.96±0.11,6.01±1.24,27.08±0.56,0.21±0.03
+fft-stationary,test,ring1,,hr,['ir-filtered'],"['sitting', 'spo2', 'talking', 'shaking_head', 'standing']",fft,200,0.001,mse,128,1738,6.04±0.32,14.50±3.97,7.30±0.37,0.56±0.02
+fft-stationary,test,ring2,,hr,['ir-filtered'],"['sitting', 'spo2', 'talking', 'shaking_head', 'standing']",fft,200,0.001,mse,128,1653,12.42±0.43,21.40±4.77,15.21±0.50,0.18±0.02
+fft-stationary,test,ring1,,oura_hr,['ir-filtered'],"['sitting', 'spo2', 'talking', 'shaking_head', 'standing']",fft,200,0.001,mse,128,198,5.57±0.87,13.38±6.33,6.66±0.99,0.68±0.05
+fft-stationary,test,ring2,,oura_hr,['ir-filtered'],"['sitting', 'spo2', 'talking', 'shaking_head', 'standing']",fft,200,0.001,mse,128,133,12.67±1.61,22.42±9.35,14.94±1.76,0.28±0.08
+fft-stationary,test,ring1,,oura_hr_com,['ir-filtered'],"['sitting', 'spo2', 'talking', 'shaking_head', 'standing']",fft,200,0.001,mse,128,198,3.62±0.24,4.91±1.76,4.47±0.29,0.93±0.03
+fft-stationary,test,ring2,,oura_hr_com,['ir-filtered'],"['sitting', 'spo2', 'talking', 'shaking_head', 'standing']",fft,200,0.001,mse,128,133,3.60±0.29,4.91±1.99,4.64±0.38,0.93±0.03
+fft-stationary,test,ring1,,samsung_hr,['ir-filtered'],"['sitting', 'spo2', 'talking', 'shaking_head', 'standing']",fft,200,0.001,mse,128,151,5.13±1.02,13.51±7.26,5.92±1.11,0.64±0.06
+fft-stationary,test,ring2,,samsung_hr,['ir-filtered'],"['sitting', 'spo2', 'talking', 'shaking_head', 'standing']",fft,200,0.001,mse,128,95,14.82±2.24,26.28±11.52,16.45±2.31,0.05±0.10
+fft-stationary,test,ring1,,samsung_hr_com,['ir-filtered'],"['sitting', 'spo2', 'talking', 'shaking_head', 'standing']",fft,200,0.001,mse,128,151,3.27±0.22,4.25±1.47,4.07±0.29,0.96±0.02
+fft-stationary,test,ring2,,samsung_hr_com,['ir-filtered'],"['sitting', 'spo2', 'talking', 'shaking_head', 'standing']",fft,200,0.001,mse,128,95,3.07±0.26,4.00±1.62,3.89±0.35,0.97±0.03
+fft-stationary,test,ring1,,resp_rr,['ir-filtered-rr'],"['sitting', 'spo2', 'talking', 'shaking_head', 'standing']",fft,200,0.001,mse,128,1414,4.58±0.08,5.56±1.07,26.08±0.40,0.27±0.03
+fft-stationary,test,ring2,,resp_rr,['ir-filtered-rr'],"['sitting', 'spo2', 'talking', 'shaking_head', 'standing']",fft,200,0.001,mse,128,925,4.93±0.11,5.98±1.24,26.95±0.55,0.21±0.03
+fft-motion,test,ring1,,hr,['ir-filtered'],"['deepsquat', 'striding']",fft,200,0.001,mse,128,191,39.25±1.63,45.25±11.65,43.65±1.37,0.09±0.07
+fft-motion,test,ring2,,hr,['ir-filtered'],"['deepsquat', 'striding']",fft,200,0.001,mse,128,181,39.52±1.69,45.55±12.20,42.79±1.41,0.10±0.07
+fft-motion,test,ring1,,oura_hr,['ir-filtered'],"['deepsquat', 'striding']",fft,200,0.001,mse,128,45,47.34±4.09,54.56±21.17,48.95±2.64,-0.13±0.15
+fft-motion,test,ring2,,oura_hr,['ir-filtered'],"['deepsquat', 'striding']",fft,200,0.001,mse,128,32,48.79±4.74,55.46±22.81,48.19±2.78,-0.05±0.18
+fft-motion,test,ring1,,oura_hr_com,['ir-filtered'],"['deepsquat', 'striding']",fft,200,0.001,mse,128,39,42.95±3.54,48.17±19.93,66.46±10.04,0.18±0.16
+fft-motion,test,ring2,,oura_hr_com,['ir-filtered'],"['deepsquat', 'striding']",fft,200,0.001,mse,128,27,44.80±4.20,49.64±23.00,62.36±11.85,0.00±0.20
+fft-motion,test,ring1,,samsung_hr,['ir-filtered'],"['deepsquat', 'striding']",fft,200,0.001,mse,128,41,45.90±3.96,52.28±20.49,48.70±2.64,-0.18±0.16
+fft-motion,test,ring2,,samsung_hr,['ir-filtered'],"['deepsquat', 'striding']",fft,200,0.001,mse,128,30,45.59±4.96,52.84±22.71,45.86±3.21,-0.08±0.19
+fft-motion,test,ring1,,samsung_hr_com,['ir-filtered'],"['deepsquat', 'striding']",fft,200,0.001,mse,128,35,38.51±3.86,44.59±19.41,56.51±9.52,0.38±0.16
+fft-motion,test,ring2,,samsung_hr_com,['ir-filtered'],"['deepsquat', 'striding']",fft,200,0.001,mse,128,25,36.03±4.66,42.64±21.90,49.17±11.01,0.41±0.19
+fft-motion,test,ring1,,resp_rr,['ir-filtered-rr'],"['deepsquat', 'striding']",fft,200,0.001,mse,128,30,6.54±0.73,7.64±3.41,33.00±3.21,0.04±0.19
+fft-motion,test,ring2,,resp_rr,['ir-filtered-rr'],"['deepsquat', 'striding']",fft,200,0.001,mse,128,15,6.45±1.06,7.58±4.10,35.22±6.75,0.20±0.27
+peak,test,ring1,,hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",peak,200,0.001,mse,128,1929,18.47±0.44,26.72±5.13,24.72±0.67,0.32±0.02
+peak,test,ring1,,hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",peak,200,0.001,mse,128,1929,18.47±0.44,26.72±5.13,24.72±0.67,0.32±0.02
+peak,test,ring1,,oura_hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",peak,200,0.001,mse,128,243,20.25±1.30,28.65±8.71,27.77±2.20,0.22±0.06
+peak,test,ring1,,oura_hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",peak,200,0.001,mse,128,243,20.25±1.30,28.65±8.71,27.77±2.20,0.22±0.06
+peak,test,ring1,,samsung_hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",peak,200,0.001,mse,128,192,19.54±1.42,27.68±9.31,26.44±2.39,0.24±0.07
+peak,test,ring2,,samsung_hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",peak,200,0.001,mse,128,125,nan±nan,nan±nan,nan±nan,nan±nan
+peak,test,ring1,,resp_rr,['ir-filtered-rr'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",peak,200,0.001,mse,128,1870,2.98±0.07,4.12±0.85,18.39±0.50,0.50±0.02
+peak,test,ring2,,resp_rr,['ir-filtered-rr'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",peak,200,0.001,mse,128,1704,nan±nan,nan±nan,nan±nan,nan±nan
+peak-stationary,test,ring1,,hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",peak,200,0.001,mse,128,1929,18.47±0.44,26.72±5.13,24.72±0.67,0.32±0.02
+peak-stationary,test,ring1,,hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",peak,200,0.001,mse,128,1929,18.47±0.44,26.72±5.13,24.72±0.67,0.32±0.02
+peak-stationary,test,ring1,,oura_hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",peak,200,0.001,mse,128,243,20.25±1.30,28.65±8.71,27.77±2.20,0.22±0.06
+peak-stationary,test,ring1,,oura_hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",peak,200,0.001,mse,128,243,20.25±1.30,28.65±8.71,27.77±2.20,0.22±0.06
+peak-stationary,test,ring1,,samsung_hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",peak,200,0.001,mse,128,192,19.54±1.42,27.68±9.31,26.44±2.39,0.24±0.07
+peak-stationary,test,ring2,,samsung_hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",peak,200,0.001,mse,128,125,nan±nan,nan±nan,nan±nan,nan±nan
+peak-stationary,test,ring1,,resp_rr,['ir-filtered-rr'],"['sitting', 'spo2', 'talking', 'shaking_head', 'standing']",peak,200,0.001,mse,128,1675,2.85±0.07,3.94±0.85,18.22±0.53,0.44±0.02
+peak-stationary,test,ring2,,resp_rr,['ir-filtered-rr'],"['sitting', 'spo2', 'talking', 'shaking_head', 'standing']",peak,200,0.001,mse,128,1532,nan±nan,nan±nan,nan±nan,nan±nan
+peak-motion,test,ring1,,hr,['ir-filtered'],"['deepsquat', 'striding']",peak,200,0.001,mse,128,191,21.27±1.42,28.93±10.14,35.86±3.84,0.12±0.07
+peak-motion,test,ring2,,hr,['ir-filtered'],"['deepsquat', 'striding']",peak,200,0.001,mse,128,181,nan±nan,nan±nan,nan±nan,nan±nan
+peak-motion,test,ring1,,oura_hr,['ir-filtered'],"['deepsquat', 'striding']",peak,200,0.001,mse,128,45,25.31±3.33,33.61±15.85,40.72±8.36,0.03±0.15
+peak-motion,test,ring2,,oura_hr,['ir-filtered'],"['deepsquat', 'striding']",peak,200,0.001,mse,128,32,27.49±3.38,33.32±15.57,35.04±6.81,-0.19±0.18
+peak-motion,test,ring1,,samsung_hr,['ir-filtered'],"['deepsquat', 'striding']",peak,200,0.001,mse,128,41,24.85±3.40,32.85±15.99,38.84±8.27,-0.04±0.16
+peak-motion,test,ring2,,samsung_hr,['ir-filtered'],"['deepsquat', 'striding']",peak,200,0.001,mse,128,30,28.80±3.35,33.99±15.48,38.30±7.24,-0.22±0.18
+peak-motion,test,ring1,,resp_rr,['ir-filtered-rr'],"['deepsquat', 'striding']",peak,200,0.001,mse,128,195,4.15±0.25,5.41±1.73,19.88±1.50,0.30±0.07
+peak-motion,test,ring2,,resp_rr,['ir-filtered-rr'],"['deepsquat', 'striding']",peak,200,0.001,mse,128,172,nan±nan,nan±nan,nan±nan,nan±nan
+ratio,test,ring1,,spo2,"['ir-raw', 'red-raw']",['spo2'],ratio,200,0.001,mse,128,456,3.57±0.14,4.65±1.34,3.86±0.16,0.30±0.04
+ratio,test,ring2,,spo2,"['ir-raw', 'red-raw']",['spo2'],ratio,200,0.001,mse,128,262,3.31±0.13,3.95±1.15,3.58±0.15,0.28±0.06
+resnet-latest,5fold,ring1,all-folds,hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",resnet,200,0.001,mse,128,1929,5.18±0.17,8.96±2.56,6.99±0.31,0.73±0.02
+resnet-latest,5fold,ring2,all-folds,hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",resnet,200,0.001,mse,128,1834,8.09±0.19,11.51±2.66,10.49±0.31,0.37±0.02
+resnet-latest,5fold,ring1,all-folds,resp_rr,['ir-filtered-rr'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",resnet,200,0.001,mse,128,1870,3.37±0.06,4.29±0.82,21.53±0.51,0.22±0.02
+resnet-latest,5fold,ring2,all-folds,resp_rr,['ir-filtered-rr'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",resnet,200,0.001,mse,128,1704,3.48±0.07,4.43±0.85,21.55±0.57,0.10±0.02
+inception-time-latest,5fold,ring1,all-folds,hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",inception_time,200,0.001,mse,128,1929,6.69±0.18,10.31±2.57,8.75±0.30,0.62±0.02
+inception-time-latest,5fold,ring2,all-folds,hr,['ir-filtered'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",inception_time,200,0.001,mse,128,1834,8.20±0.18,11.16±2.42,10.65±0.28,0.36±0.02
+inception-time-latest,5fold,ring1,all-folds,resp_rr,['ir-filtered-rr'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",inception_time,200,0.001,mse,128,1870,3.25±0.06,4.20±0.82,20.78±0.52,0.23±0.02
+inception-time-latest,5fold,ring2,all-folds,resp_rr,['ir-filtered-rr'],"['sitting', 'spo2', 'deepsquat', 'talking', 'shaking_head', 'standing', 'striding']",inception_time,200,0.001,mse,128,1704,3.36±0.07,4.33±0.83,20.70±0.56,0.16±0.02
+
