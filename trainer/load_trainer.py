@@ -196,7 +196,7 @@ class SupervisedTrainer(BaseTrainer):
         
         os.makedirs(checkpoint_dir, exist_ok=True)
         best_checkpoint_path = os.path.join(checkpoint_dir, f"{exp_name}_{task}_{fold}_best.pt")
-        config_save_path = os.path.join(checkpoint_dir, f"{exp_name}_{task}_{fold}_config.json")
+        config_save_path = os.path.join(checkpoint_dir, f"{exp_name}.json")
         if self.gradient_accum > 1:
             logging.info(f"Training with gradient accumulation: {self.gradient_accum} steps")
         
