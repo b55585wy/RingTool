@@ -159,7 +159,7 @@ class TaoBERT(nn.Module):
         super().__init__()
         # 输入处理
         self.projection = nn.Sequential(
-            nn.Unfold(kernel_size=(window_size, 1)),  # 滑动窗口处理
+            nn.Unfold(kernel_size=(window_size, 1), stride=window_size),  # 滑动窗口处理
             Rearrange('b (c w) l -> b l (w c)', w=window_size, c=in_channels),
             MLPProjector(input_dim=in_channels*window_size, output_dim=dim)
         )
