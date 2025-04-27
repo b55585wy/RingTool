@@ -34,6 +34,20 @@ jobs:
     - name: Run pre-commit hooks
       run: pre-commit run --all-files
 
+  check_json_names:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Run JSON name validation
+        run: python .github/scripts/check_json_names.py config/supervised
+
   # test:
   #   runs-on: ubuntu-latest
   #   needs: lint
