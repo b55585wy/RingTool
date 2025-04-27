@@ -49,8 +49,7 @@
             "dropout_p": 0.3,
             "use_final_do": false,
             "final_dropout_p": 0.5,
-            "backbone": false,
-            "final_proj":"last"
+            "backbone": false
         }
     },
     "train":{
