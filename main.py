@@ -339,9 +339,19 @@ if __name__ == '__main__':
     batch_configs_dir = args.batch_configs_dir
     send_notification_slack = args.send_notification_slack
     if batch_configs_dir:
-        config_files = [f for f in os.listdir(batch_configs_dir) if f.endswith(".json")]
+        config_files = []
+        for root, _, files in os.walk(batch_configs_dir):
+            for file in files:
+                if file.endswith(".json"):
+                    # Get relative path from batch_configs_dir
+                    rel_path = os.path.relpath(os.path.join(root, file), batch_configs_dir)
+                    config_files.append(rel_path)
+        
+        logging.info(f"Found {len(config_files)} JSON configuration files in {batch_configs_dir}")
+
         for config_file in config_files:
             full_config_path = os.path.join(batch_configs_dir, config_file)
+            logging.info(f"Running experiment with config: {full_config_path}")
 
             config = load_config(full_config_path)
 
