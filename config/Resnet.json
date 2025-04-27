@@ -1,6 +1,6 @@
 {
     "exp_name": "resnet-latest",
-    "mode": "test",
+    "mode": "5fold",
     "split":{
         "train": ["00009", "00012", "00005", "00020", "00031", "00022", "00029", "00016", "00026", "00024", "00014", "00010", "00011", "00027", "00008", "00019", "00030", "00003", "00025", "00006", "00033"], 
         "valid": ["00013", "00018", "00002", "00032", "00028", "00021", "00000"], 
@@ -34,7 +34,7 @@
         "window_duration": 30,
         "experiment": ["Health", "Daily","Sport"],
         "original_task": ["sitting", "spo2", "deepsquat", "talking", "shaking_head", "standing", "striding"],
-        "task": ["standing"],
+        "task": ["sitting", "spo2", "deepsquat", "talking", "shaking_head", "standing", "striding"],,
         "accel_combined": false,
         "accel_combined_method": "magnitude"
     },
@@ -58,8 +58,7 @@
             "dropout_p": 0.3,
             "use_final_do": false,
             "final_dropout_p": 0.5,
-            "backbone": false,
-            "final_proj":"last"
+            "backbone": false
         }
     },
     "train":{
