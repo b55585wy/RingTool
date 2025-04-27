@@ -46,7 +46,7 @@ jobs:
           python-version: '3.x'
 
       - name: Run JSON name validation
-        run: python .github/scripts/check_json_names.py config/supervised
+        run: python .github/scripts/check_json_names.py config/supervised config/only_test
 
   # test:
   #   runs-on: ubuntu-latest
