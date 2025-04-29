@@ -24,24 +24,30 @@ A configurable pipeline prepares raw signals:
 ### Physics-based Methods
 RingTool includes traditional signal processing algorithms:
 * **Peak Detection:** Estimates HR/RR from detected peaks in filtered signals.
-    ```math
-    \text{Rate (per minute)} = \frac{60 \times \text{Number of peaks}}{\text{Window duration (seconds)}}
-    ```
+
+```math
+\text{Rate (per minute)} = \frac{60 \times \text{Number of peaks}}{\text{Window duration (seconds)}}
+```
 * **Fast Fourier Transform (FFT):** Estimates HR/RR from the peak frequency ($f_{peak}$) in the signal's spectrum.
-    ```math
-    \text{HR (bpm)} = 60 \times f_{peak} \quad (f_{peak} \in [0.5, 3] \text{ Hz})
-    ```
-    ```math
-    \text{RR (breaths/min)} = 60 \times f_{peak} \quad (f_{peak} \in [0.1, 0.5] \text{ Hz})
-    ```
+
+```math
+\text{HR (bpm)} = 60 \times f_{peak} \quad (f_{peak} \in [0.5, 3] \text{ Hz})
+```
+
+```math
+\text{RR (breaths/min)} = 60 \times f_{peak} \quad (f_{peak} \in [0.1, 0.5] \text{ Hz})
+```
 * **Ratio-Based SpO2:** Calculates SpO2 using the ratio of AC/DC components from red and infrared PPG signals.
-    ```math
-    R = \frac{AC_{red}/DC_{red}}{AC_{infrared}/DC_{infrared}}
-    ```
-    ```math
-    \text{SpO2 (\%)} = a - b \times R
-    ```
-    (Coefficients $a, b$ depend on sensor type, e.g., $a \approx 99, b \approx 6$ for reflective; $a \approx 87, b \approx -6$ for transmissive).
+
+```math
+R = \frac{AC_{red}/DC_{red}}{AC_{infrared}/DC_{infrared}}
+```
+
+```math
+\text{SpO2 (\%)} = a - b \times R
+```
+
+(Coefficients $a, b$ depend on sensor type, e.g., $a \approx 99, b \approx 6$ for reflective; $a \approx 87, b \approx -6$ for transmissive).
 
 
 ### Supervised Methods
