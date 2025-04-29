@@ -196,36 +196,3 @@ class RingToolDataset(Dataset):
     def __getitem__(self, idx):
         # Assuming each item in the dataset is a tuple (input, label)
         return self.data[idx]
-
-
-if __name__ == "__main__":
-    # Example usage
-    '''
-    -rings
-        -subject_ring1_processed.pkl    :DataFrame
-        -subject_ring2_processed.pkl    :DataFrame
-    
-            -id,start,end,fs,ir-raw,ir-standardized,ir-filtered,ir-difference,ir-welch,red-raw,red-standardized,red-filtered,red-difference,red-welch,ax-raw,ax-standardized,ay-raw,ay-standardized,az-raw,az-standardized,ir-quality,red-quality,hr,bvp_hr,bvp_sdnn,bvp_rmssd,bvp_nn50,bvp_pnn50,resp_rr,spo2,samsung_hr,oura_hr,BP_sys,BP_dia,Experiment,Label
-    
-            np.array:ir-raw,ir-standardized,ir-filtered,ir-difference,ir-welch,red-raw,red-standardized,red-filtered,red-difference,red-welch,ax-raw,ax-standardized,ay-raw,ay-standardized,az-raw,az-standardized
-            str:Experiment,Label
-            float:id,start,end,fs,ir-quality,red-quality,hr,bvp_hr,bvp_sdnn,bvp_rmssd,bvp_nn50,bvp_pnn50,resp_rr,spo2,samsung_hr,oura_hr,BP_sys,BP_dia
-    '''
-    data_path = "/home/disk2/disk/3/tjk/RingData/Preprocessed_test/rings"
-    # check sample data first
-    split_config = {'train': ['00021', '00030', '00010', '00028', '00019', '00014', '00017', '00025', '00022', '00013', '00007', '00009', '00031', '00026', '00032', '00020', '00040', '00016', '00027', '00008', '00011'], 'test': ['00000', '00001', '00002', '00003', '00004', '00005', '00006'], 'valid': ['00023', '00024', '00018', '00029', '00015', '00012']}
-    sample_data = pd.read_pickle(os.path.join(data_path, "00000"+"_ring1_processed.pkl"))
-    sample_data = sample_data.iloc[:10]
-    print(sample_data)
-    print(sample_data.columns)
-    print(sample_data['ir-raw'].iloc[0].shape)
-    print(sample_data['samsung_hr'])
-    
-    # # Usage example
-    # print(LoadDataset(
-    #     config={},
-    #     raw_data=sample_data,
-    #     channels=['ir-raw', 'red-raw', 'ax-raw', 'ay-raw', 'az-raw'],
-    #     task='hr'
-    # ))
-    

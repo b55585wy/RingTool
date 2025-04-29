@@ -340,7 +340,7 @@ if __name__ == '__main__':
     warnings.filterwarnings('ignore', category=UserWarning, module='torch.nn')
 
     parser = argparse.ArgumentParser(description='RingTool.')
-    parser.add_argument('--data-path', type=str, default="/home/disk2/disk/3/tjk/RingData/PreprocessedV2/rings", help='Path to the data folder.')
+    parser.add_argument('--data-path', type=str, default=None, help='Path to the data folder.')
     parser.add_argument('--send-notification-slack', action="store_true", help='Send notification to slack.')
 
     # --- Group for mutually exclusive config options ---
@@ -353,7 +353,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     data_path = args.data_path
-    if not os.path.exists(data_path):
+    if not data_path or not os.path.exists(data_path):
         raise FileNotFoundError(f"Data path {data_path} does not exist.")
     if not os.path.isdir(data_path):
         raise NotADirectoryError(f"Data path {data_path} is not a directory.")

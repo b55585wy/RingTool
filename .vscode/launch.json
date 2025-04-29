@@ -8,7 +8,7 @@
             "program": "${workspaceFolder}/main.py",
             "console": "internalConsole",
             "justMyCode": true,
-            "args": ["--data-path", "/home/dykderrick/mega/datasets/PreprocessedV2/rings"]
+            "args": ["--data-path", "/replace/with/your/data/path"]
         },
         {
             "name": "Python: main.py (batch configs)",
@@ -19,7 +19,7 @@
             "justMyCode": true,
             "args": [
                 "--batch-configs-dirs", "${input:batchConfigsDirs}",
-                "--data-path", "/home/dykderrick/mega/datasets/PreprocessedV2/rings"
+                "--data-path", "/replace/with/your/data/path"
             ],
         },
         {
@@ -31,7 +31,7 @@
             "justMyCode": true,
             "args": [
                 "--config", "${input:configPath}",
-                "--data-path", "/home/dykderrick/mega/datasets/PreprocessedV2/rings"
+                "--data-path", "/replace/with/your/data/path"
             ]
         }
     ],
@@ -40,13 +40,13 @@
             "id": "batchConfigsDirs",
             "type": "promptString",
             "description": "Directory containing batch configuration files",
-            "default": "config/exp/dropout_p"
+            "default": "config/supervised"
         },
         {
             "id": "configPath",
             "type": "promptString",
             "description": "Path to custom configuration file",
-            "default": "config/Resnet.json"
+            "default": "config/supervised/ring1/hr/ir/resnet-ring1-hr-all-ir.json"
         }
     ]
 }
