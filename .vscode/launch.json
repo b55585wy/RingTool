@@ -8,7 +8,7 @@
             "program": "${workspaceFolder}/main.py",
             "console": "internalConsole",
             "justMyCode": true,
-            "args": []
+            "args": ["--data-path", "/home/dykderrick/mega/datasets/PreprocessedV2/rings"]
         },
         {
             "name": "Python: main.py (batch configs)",
@@ -18,7 +18,8 @@
             "console": "internalConsole",
             "justMyCode": true,
             "args": [
-                "--batch-configs-dir", "${input:batchConfigsDir}"
+                "--batch-configs-dirs", "${input:batchConfigsDirs}",
+                "--data-path", "/home/dykderrick/mega/datasets/PreprocessedV2/rings"
             ],
         },
         {
@@ -29,13 +30,14 @@
             "console": "internalConsole",
             "justMyCode": true,
             "args": [
-                "--config", "${input:configPath}"
+                "--config", "${input:configPath}",
+                "--data-path", "/home/dykderrick/mega/datasets/PreprocessedV2/rings"
             ]
         }
     ],
     "inputs": [
         {
-            "id": "batchConfigsDir",
+            "id": "batchConfigsDirs",
             "type": "promptString",
             "description": "Directory containing batch configuration files",
             "default": "config/exp/dropout_p"

@@ -324,25 +324,32 @@ def do_run_experiment(config: Dict, data_path: str, send_notification_slack=Fals
             
 
     except Exception as e:
-        logging.error(f"Error running experiment with config {config_path}: {e}", exc_info=True)
+        logging.error(f"Error running experiment with config {config['_config_path_']}: {e}", exc_info=True)
         if send_notification_slack:
             client = setup_slack()
             send_slack_message(client, "#training-notifications", f"❌ Experiment {exp_name} failed with error: {e}")
 
 
 if __name__ == '__main__':
-    config_path = "./config/Resnet.json"
-    # config_path = "./config/Transformer.json"
-    # config_path = "./config/Mamba2.json"
-    # config_path = "./config/InceptionTime.json"
+    # Default single config path (can be overridden or ignored)
+    default_config_path = "./config/Resnet.json"
+    # default_config_path = "./config/Transformer.json"
+    # default_config_path = "./config/Mamba2.json"
+    # default_config_path = "./config/InceptionTime.json"
 
     warnings.filterwarnings('ignore', category=UserWarning, module='torch.nn')
 
-    parser = argparse.ArgumentParser(description='Process ring PPG data using FFT.')
+    parser = argparse.ArgumentParser(description='RingTool.')
     parser.add_argument('--data-path', type=str, default="/home/disk2/disk/3/tjk/RingData/PreprocessedV2/rings", help='Path to the data folder.')
-    parser.add_argument('--batch-configs-dir', type=str, default=None, help='Path to the configuration JSON files directory. Will execute all exps in the dir.')
     parser.add_argument('--send-notification-slack', action="store_true", help='Send notification to slack.')
-    parser.add_argument('--config', type=str, default=config_path, help='Path to the configuration JSON file.')
+
+    # --- Group for mutually exclusive config options ---
+    group = parser.add_mutually_exclusive_group(required=False) # Make the group itself not strictly required initially
+
+    group.add_argument('--config', type=str, default=None, help=f'Path to a single configuration JSON file (default if no batch dirs: {default_config_path}).')
+    group.add_argument('--batch-configs-dirs', type=str, nargs='+', help='One or more paths to directories containing configuration JSON files. Executes all found JSONs.')
+    # --- End of group ---
+
     args = parser.parse_args()
 
     data_path = args.data_path
@@ -350,33 +357,74 @@ if __name__ == '__main__':
         raise FileNotFoundError(f"Data path {data_path} does not exist.")
     if not os.path.isdir(data_path):
         raise NotADirectoryError(f"Data path {data_path} is not a directory.")
-    
-    batch_configs_dir = args.batch_configs_dir
+
+    batch_configs_dirs = args.batch_configs_dirs # This will be a list of paths or None
+    single_config_path = args.config
     send_notification_slack = args.send_notification_slack
-    if batch_configs_dir:
-        config_files = []
-        for root, _, files in os.walk(batch_configs_dir):
-            for file in files:
-                if file.endswith(".json"):
-                    # Get relative path from batch_configs_dir
-                    rel_path = os.path.relpath(os.path.join(root, file), batch_configs_dir)
-                    config_files.append(rel_path)
+
+    config_files_to_run = []
+
+    if batch_configs_dirs:
+        logging.info(f"Scanning for JSON config files in directories: {', '.join(batch_configs_dirs)}")
+        for config_dir in batch_configs_dirs:
+            if not os.path.isdir(config_dir):
+                logging.warning(f"Provided batch config path is not a directory, skipping: {config_dir}")
+                continue
+            
+            found_in_dir = 0
+            for root, _, files in os.walk(config_dir):
+                for file in files:
+                    if file.endswith(".json"):
+                        full_path = os.path.join(root, file)
+                        config_files_to_run.append(full_path)
+                        found_in_dir += 1
+            logging.info(f"Found {found_in_dir} JSON files in {config_dir}")
+
+        if not config_files_to_run:
+             logging.warning("No JSON configuration files found in the specified batch directories.")
         
-        logging.info(f"Found {len(config_files)} JSON configuration files in {batch_configs_dir}")
+    elif single_config_path:
+        if os.path.isfile(single_config_path):
+             config_files_to_run.append(single_config_path)
+        else:
+             logging.error(f"Specified single config file not found: {single_config_path}")
+             exit(1)
 
-        for config_file in config_files:
-            full_config_path = os.path.join(batch_configs_dir, config_file)
-            logging.info(f"Running experiment with config: {full_config_path}")
+    elif not batch_configs_dirs and not single_config_path:
+        # Neither batch dirs nor a single config was specified, try the default
+        logging.info(f"Neither --config nor --batch-configs-dirs specified. Trying default config: {default_config_path}")
+        if os.path.isfile(default_config_path):
+            config_files_to_run.append(default_config_path)
+            single_config_path = default_config_path # Update for logging clarity later
+        else:
+            logging.error(f"Default configuration file not found: {default_config_path}")
+            parser.print_help()
+            exit(1)
 
-            config = load_config(full_config_path)
 
-            do_run_experiment(config, data_path, send_notification_slack)
-        logging.info("Finished all experiments in batch.")
-    elif args.config:
-        config = load_config(args.config)
-        do_run_experiment(config, data_path, send_notification_slack)
+    # --- Run Experiments ---
+    if config_files_to_run:
+        logging.info(f"Found {len(config_files_to_run)} configuration file(s) to process.")
+        
+        total_configs = len(config_files_to_run)
+        for i, config_file_path in enumerate(config_files_to_run, 1):
+            logging.info(f"--- Running experiment {i}/{total_configs} with config: {config_file_path} ---")
+            try:
+                config = load_config(config_file_path)
+                if config is None:
+                     logging.warning(f"Skipping experiment due to load failure for {config_file_path}")
+                     continue # Skip to the next config file
+                
+                # Add config path to config dict for potential logging inside do_run_experiment
+                config['_config_path_'] = config_file_path 
+                
+                do_run_experiment(config, data_path, send_notification_slack)
+                
+            except Exception as e:
+                logging.error(f"!!! Critical error during experiment with config {config_file_path}: {e}", exc_info=True)
+
+        logging.info("--- Finished processing all specified configurations. ---")
     else:
-        # This case should ideally not happen if argparse requires 'config' when 'batch_configs_dir' is not given,
-        # but added for robustness.
-        logging.error("No configuration file or directory specified. Use --config or --batch-configs-dir.")
-        parser.print_help()
+        logging.error("No valid configuration files found or specified to run.")
+        if not batch_configs_dirs and not single_config_path: # If user provided nothing
+            parser.print_help()
