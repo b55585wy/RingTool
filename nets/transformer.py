@@ -152,7 +152,7 @@ class Transformer(nn.Module):
             x = ff(x)
         return x
 
-class TaoBERT(nn.Module):
+class RingToolBERT(nn.Module):
     def __init__(self, in_channels=3, window_size=5,
                  dim=128, depth=4, heads=4, mlp_dim=64,
                  dropout=0.1, num_classes=1, **kw):

@@ -1,9 +1,9 @@
 from enum import Enum
 
 from nets.inception_time import InceptionTime
-from nets.mamba2 import TaoMamba
+from nets.mamba2 import RingToolMamba
 from nets.resnet import ResNet1D
-from nets.transformer import TaoBERT
+from nets.transformer import RingToolBERT
 
 
 class SupportedSupervisedModels(Enum):
@@ -16,6 +16,6 @@ class SupportedSupervisedModels(Enum):
 MODEL_CLASSES = {
     SupportedSupervisedModels.RESNET: ResNet1D,
     SupportedSupervisedModels.INCEPTION_TIME: InceptionTime,
-    SupportedSupervisedModels.TRANSFORMER: TaoBERT,
-    SupportedSupervisedModels.MAMBA2: TaoMamba,
+    SupportedSupervisedModels.TRANSFORMER: RingToolBERT,
+    SupportedSupervisedModels.MAMBA2: RingToolMamba,
 }

@@ -38,7 +38,7 @@ class MambaStack(nn.Module):
             x = x + y
         return self.drop(x)
 
-class TaoMamba(nn.Module):
+class RingToolMamba(nn.Module):
     def __init__(self, 
                  in_channels=3, 
                  window_size=5,
