@@ -4,13 +4,23 @@ RingTool is an open platform for health sensing and data analysis with smart rin
 
 ![RingTool System Overview](figures/structure.jpg)
 
-
-
 ## Features
 - **Data Collection**: RingTool provides APIs and libraries for collecting data from smart rings, including raw 3-Channel PPG, 6-axis IMU, and 3-point Temprature sensors.
 - **Data Analysis**: The platform includes tools for analyzing the collected data, calculating heart rate (HR), heart rate variability (HRV), respiratory rate (RR), blood oxygen saturation (SpO2), and blood pressure (BP).
 
+
+![Daily Experiment](figures/dailyExperiment.png)
+
+![Health Experiment](figures/healthExperiment.png)
+
+
 ## Usage
+### Prerequisites
+The project depends on several Python libraries and tools, including [`PyTorch`](https://github.com/pytorch/pytorch), [`mamba-ssm`](https://github.com/state-spaces/mamba), [`Triton`](https://github.com/triton-lang/triton) etc. You can install these dependencies manually in your environment or using our [`requirements.txt`]().
+
+
+
+
 **Prevent pushing pyc files into Git**.
 ```sh
 pip install pre-commit
