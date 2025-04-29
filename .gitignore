@@ -17,7 +17,7 @@ config/exp/*
 
 nohup.out
 
-*.toml
+notifications/slack_configs.toml
 
 .ruff_cache
 
