@@ -72,7 +72,57 @@ A standardized framework is used:
 
 ## 🚀 Usage
 ### 📋 Prerequisites
-The project depends on several Python libraries and tools, including [`PyTorch`](https://github.com/pytorch/pytorch), [`mamba-ssm`](https://github.com/state-spaces/mamba), [`Triton`](https://github.com/triton-lang/triton) etc. You can install these dependencies manually in your environment or using our [`requirements.txt`](requirements.txt).
+The project depends on several Python libraries and tools, including [`PyTorch`](https://github.com/pytorch/pytorch), [`mamba-ssm`](https://github.com/state-spaces/mamba), [`Triton`](https://github.com/triton-lang/triton) etc. Detailed packages and versions are listed in [`requirements.txt`](requirements.txt).
+
+### 🛠️ Installation
+We recommend using a virtual environment to avoid conflicts with other projects. You can create a virtual environment using [`venv`](https://docs.python.org/3/library/venv.html), [`conda`](https://www.anaconda.com/docs/getting-started/miniconda/main) or [`uv`](https://docs.astral.sh/uv/).
+
+Using `venv`:
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+Using `conda`:
+```sh
+conda create -n ringtool python=3.10
+conda activate ringtool
+pip install -r requirements.txt
+```
+
+Using `uv`:
+```sh
+uv venv --python 3.10
+source .venv/bin/activate
+uv pip install -r requirements.txt
+```
+
+### 💨 Running the Code
+We have already packed a set of configurations for you to run the code. You can find them in the [`config`](config) folder. Below commands will run the training and evaluation of all the methods in the corresponding configuration files.
+
+For unsupervised methods, run:
+```sh
+python3 main.py --data-path <replace-with-your-data-path> --batch-configs-dirs config/physical-based
+```
+
+For supervised methods' training and evaluation, use the following command:
+```sh
+nohup python3 main.py --data-path <replace-with-your-data-path> --batch-configs-dirs config/supervised > nohup-$(date +\%Y\%m\%d\%H\%M\%S).log 2>&1 &
+```
+> Note you are expected to wait for quite a while for the whole batch training to finish.
+
+For direct testing, use:
+```sh
+python3 main.py --data-path <replace-with-your-data-path> --batch-configs-dirs config/only_test
+```
+
+If you do not want to run the whole batch training, you can also run a specific configuration file. For example, to run the [`resnet-ring1-hr-all-ir.json`](config/supervised/ring1/hr/ir/resnet-ring1-hr-all-ir.json), you can use the following command:
+```sh
+python3 main.py --data-path <replace-with-your-data-path> --config config/supervised/ring1/hr/ir/resnet-ring1-hr-all-ir.json
+```
+
+If you want to integrate Slack bot notifications, you can add the `--send-notifications-slack` argument to the command. This will send notifications to a specified Slack channel when the training ends. See Also [How to slack training bot](notifications/README.md).
 
 
 ## 📊 Dataset
