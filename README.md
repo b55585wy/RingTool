@@ -1,20 +1,7 @@
 # RingTool
-## Description
 RingTool is an open platform for health sensing and data analysis with smart rings. It processes raw **PPG** and **IMU** signals from ring sensors to estimate cardiovascular parameters (HR, RR, SpO2, BP). It offers configurable modules for data preprocessing, physics-based algorithms, supervised learning models (ResNet, InceptionTime, Transformer, Mamba), and systematic evaluation. The platform is designed to be flexible and extensible, allowing developers to build custom solutions for a wide range of health and wellness applications.
 
 ![RingTool System Overview](figures/structure.jpg)
-
-
-## Dataset
-Visualization of ring signal and corresponding medical ground truth.
-
-![Dataset Visualization](figures/00017_ring1_processed.png)
-
-> **Stimulus-evoked data collection procedure across physiological states.** The protocol consists of three main activities: (1) A 10-minute seated resting, (2) A 9-minute supervised low-oxygen simulation, and (3) Two 2-minute sessions of deep squat exercises. Blood pressure measurements were taken before and after each activity, while physiological data was continuously recorded by our custom rings and periodically measured by commercial rings for comparison.
-![Health Experiment](figures/healthExperiment.png)
-
-> **Data collection procedure across daily activities.** The protocol consists of five activity segments: (1) A 30-minute seated resting, (2) 5-minute sitting and talking, (3) 5-minute head movement, (4) 5-minute standing, and (5) 5-minute walking in place. Participants wore the oximeter, Ring 1 (reflective), Ring 2 (transmissive), and respiratory band throughout all activities.
-![Daily Experiment](figures/dailyExperiment.png)
 
 
 ## Features
@@ -37,23 +24,23 @@ A configurable pipeline prepares raw signals:
 ### Physics-based Methods
 RingTool includes traditional signal processing algorithms:
 * **Peak Detection:** Estimates HR/RR from detected peaks in filtered signals.
-    $$
+    ```math
     \text{Rate (per minute)} = \frac{60 \times \text{Number of peaks}}{\text{Window duration (seconds)}}
-    $$
+    ```
 * **Fast Fourier Transform (FFT):** Estimates HR/RR from the peak frequency ($f_{peak}$) in the signal's spectrum.
-    $$
+    ```math
     \text{HR (bpm)} = 60 \times f_{peak} \quad (f_{peak} \in [0.5, 3] \text{ Hz})
-    $$
-    $$
+    ```
+    ```math
     \text{RR (breaths/min)} = 60 \times f_{peak} \quad (f_{peak} \in [0.1, 0.5] \text{ Hz})
-    $$
+    ```
 * **Ratio-Based SpO2:** Calculates SpO2 using the ratio of AC/DC components from red and infrared PPG signals.
-    $$
+    ```math
     R = \frac{AC_{red}/DC_{red}}{AC_{infrared}/DC_{infrared}}
-    $$
-    $$
+    ```
+    ```math
     \text{SpO2 (\%)} = a - b \times R
-    $$
+    ```
     (Coefficients $a, b$ depend on sensor type, e.g., $a \approx 99, b \approx 6$ for reflective; $a \approx 87, b \approx -6$ for transmissive).
 
 
@@ -78,6 +65,19 @@ A standardized framework is used:
 ## Usage
 ### Prerequisites
 The project depends on several Python libraries and tools, including [`PyTorch`](https://github.com/pytorch/pytorch), [`mamba-ssm`](https://github.com/state-spaces/mamba), [`Triton`](https://github.com/triton-lang/triton) etc. You can install these dependencies manually in your environment or using our [`requirements.txt`](requirements.txt).
+
+
+## Dataset
+Visualization of ring signal and corresponding medical ground truth.
+
+![Dataset Visualization](figures/00017_ring1_processed.png)
+
+> **Stimulus-evoked data collection procedure across physiological states.** The protocol consists of three main activities: (1) A 10-minute seated resting, (2) A 9-minute supervised low-oxygen simulation, and (3) Two 2-minute sessions of deep squat exercises. Blood pressure measurements were taken before and after each activity, while physiological data was continuously recorded by our custom rings and periodically measured by commercial rings for comparison.
+![Health Experiment](figures/healthExperiment.png)
+
+> **Data collection procedure across daily activities.** The protocol consists of five activity segments: (1) A 30-minute seated resting, (2) 5-minute sitting and talking, (3) 5-minute head movement, (4) 5-minute standing, and (5) 5-minute walking in place. Participants wore the oximeter, Ring 1 (reflective), Ring 2 (transmissive), and respiratory band throughout all activities.
+![Daily Experiment](figures/dailyExperiment.png)
+
 
 
 
