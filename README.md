@@ -1,11 +1,10 @@
-# RingTool
-RingTool is an open platform for health sensing and data analysis with smart rings. It processes raw **PPG** and **IMU** signals from ring sensors to estimate cardiovascular parameters (HR, RR, SpO2, BP). It offers configurable modules for data preprocessing, physics-based algorithms, supervised learning models (ResNet, InceptionTime, Transformer, Mamba), and systematic evaluation. The platform is designed to be flexible and extensible, allowing developers to build custom solutions for a wide range of health and wellness applications.
+# 💍 RingTool
+RingTool is an open platform for health sensing and data analysis with smart rings. It processes raw **PPG** and **IMU** signals from ring sensors to estimate cardiovascular parameters (HR, RR, SpO2, BP). It offers configurable modules for data preprocessing, physics-based algorithms, supervised learning models (**ResNet**, **InceptionTime**, **Transformer**, **Mamba**), and systematic evaluation. The platform is designed to be flexible and extensible, allowing the community to build custom solutions for a wide range of health and wellness applications.
 
 ![RingTool System Overview](figures/structure.jpg)
 
-
-## Features
-### Toolkit Configuration
+## ✨ Features
+### ⚙️ Toolkit Configuration
 Built with Python/PyTorch, RingTool allows customization of:
 * **Data Splits:** Train/validation/test sets, k-fold cross-validation.
 * **Training:** Learning rate, batch size, optimizer, epochs.
@@ -13,7 +12,7 @@ Built with Python/PyTorch, RingTool allows customization of:
 * **Methods:** Choose between physics-based and supervised learning approaches.
 * **Filtering:** Parameter-specific filter settings.
 
-### Data Preprocessing
+### 🔄 Data Preprocessing
 A configurable pipeline prepares raw signals:
 * **Windowing:** Segments data (default: 30s, >95 Hz sampling rate).
 * **Standardization:** Zero-mean, unit-variance normalization.
@@ -21,7 +20,7 @@ A configurable pipeline prepares raw signals:
 * **DiffNorm:** Differentiation + normalization to enhance periodic signals.
 * **Spectral Analysis:** Frequency-domain transformation.
 
-### Physics-based Methods
+### 🔍 Physics-based Methods
 RingTool includes traditional signal processing algorithms:
 * **Peak Detection:** Estimates HR/RR from detected peaks in filtered signals.
 
@@ -53,7 +52,7 @@ R = \frac{AC_{red}/DC_{red}}{AC_{infrared}/DC_{infrared}}
 All code for physics-based methods is implemented in [`unsupervised`](unsupervised).
 
 
-### Supervised Methods
+### 🚆 Supervised Methods
 #### Deep Learning Models
 RingTool includes four deep learning backbones adapted for multi-channel physiological time-series regression:
 
@@ -71,12 +70,12 @@ A standardized framework is used:
 * **Evaluation Metrics:** MAE, RMSE, MAPE, Pearson correlation coefficient.
 
 
-## Usage
-### Prerequisites
+## 🚀 Usage
+### 📋 Prerequisites
 The project depends on several Python libraries and tools, including [`PyTorch`](https://github.com/pytorch/pytorch), [`mamba-ssm`](https://github.com/state-spaces/mamba), [`Triton`](https://github.com/triton-lang/triton) etc. You can install these dependencies manually in your environment or using our [`requirements.txt`](requirements.txt).
 
 
-## Dataset
+## 📊 Dataset
 Visualization of ring signal and corresponding medical ground truth.
 
 ![Dataset Visualization](figures/00017_ring1_processed.png)
