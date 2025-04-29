@@ -27,7 +27,7 @@
         "experiment": ["Health", "Daily","Sport"],
         "task": ["sitting", "spo2", "deepsquat", "talking", "shaking_head", "standing", "striding"],
         "accel_combined": true,
-        "accel_combined_method": "magnitude"
+        "accel_combined_method": "pitch"
     },
     "seed": 42,
     "csv_path": "csv/inception_time/inception_time.csv",
