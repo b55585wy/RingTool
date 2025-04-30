@@ -101,20 +101,21 @@ uv pip install -r requirements.txt
 ### 💨 Running the Code
 We have already packed a set of configurations for you to run the code. You can find them in the [`config`](config) folder. Below commands will run the training and evaluation of all the methods in the corresponding configuration files.
 
-For unsupervised methods, run:
+#### Unsupervised Methods
 ```sh
 python3 main.py --data-path <replace-with-your-data-path> --batch-configs-dirs config/physical-based
 ```
 
+#### Supervised Methods
 For supervised methods' training and evaluation, use the following command:
 ```sh
-nohup python3 main.py --data-path <replace-with-your-data-path> --batch-configs-dirs config/supervised > nohup-$(date +\%Y\%m\%d\%H\%M\%S).log 2>&1 &
+nohup python3 main.py --data-path <replace-with-your-data-path> --batch-configs-dirs config/supervised > $(date +\%Y\%m\%d\%H\%M\%S)-nohup-train.log 2>&1 &
 ```
-> Note you are expected to wait for quite a while for the whole batch training to finish.
+> Note you are expected to wait for quite a while for the whole batch training to finish. On an NVIDIA RTX 3090, it takes about 13 hours to finish the training and evaluation of all the methods in the configuration files.
 
 For direct testing, use:
 ```sh
-python3 main.py --data-path <replace-with-your-data-path> --batch-configs-dirs config/only_test
+nohup python3 main.py --data-path <replace-with-your-data-path> --batch-configs-dirs config/only_test > $(date +\%Y\%m\%d\%H\%M\%S)-nohup-test.log 2>&1 &
 ```
 
 If you do not want to run the whole batch training, you can also run a specific configuration file. For example, to run the [`resnet-ring1-hr-all-ir.json`](config/supervised/ring1/hr/ir/resnet-ring1-hr-all-ir.json), you can use the following command:
