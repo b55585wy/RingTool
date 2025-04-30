@@ -16,7 +16,7 @@ Built with Python/PyTorch, RingTool allows customization of:
 A configurable pipeline prepares raw signals:
 * **Windowing:** Segments data (default: 30s, >95 Hz sampling rate).
 * **Standardization:** Zero-mean, unit-variance normalization.
-* **Filtering:** Band-pass Welch filter (HR: $0.5-3$ Hz, RR: $0.1-0.5$ Hz).
+* **Filtering:** Band-pass Welch filter (HR: 0.5-3 Hz, RR: 0.1-0.5 Hz).
 * **DiffNorm:** Differentiation + normalization to enhance periodic signals.
 * **Spectral Analysis:** Frequency-domain transformation.
 
@@ -122,7 +122,7 @@ If you do not want to run the whole batch training, you can also run a specific 
 python3 main.py --data-path <replace-with-your-data-path> --config config/supervised/ring1/hr/ir/resnet-ring1-hr-all-ir.json
 ```
 
-If you want to integrate Slack bot notifications, you can add the `--send-notifications-slack` argument to the command. This will send notifications to a specified Slack channel when the training ends. See Also [How to slack training bot](notifications/README.md).
+If you want to integrate Slack bot notifications, you can add the `--send-notification-slack` argument to the command. This will send notifications to a specified Slack channel when the training ends. See Also [How to slack training bot](notifications/README.md).
 
 
 ## 📊 Dataset
@@ -130,26 +130,17 @@ Visualization of ring signal and corresponding medical ground truth.
 
 ![Dataset Visualization](figures/00017_ring1_processed.png)
 
-> **Stimulus-evoked data collection procedure across physiological states.** The protocol consists of three main activities: (1) A 10-minute seated resting, (2) A 9-minute supervised low-oxygen simulation, and (3) Two 2-minute sessions of deep squat exercises. Blood pressure measurements were taken before and after each activity, while physiological data was continuously recorded by our custom rings and periodically measured by commercial rings for comparison.
+
+Our data was collected from two certain protocols.
+
+> 1. **Stimulus-evoked data collection procedure across physiological states.** The protocol consists of three main activities: (1) A 10-minute seated resting, (2) A 9-minute supervised low-oxygen simulation, and (3) Two 2-minute sessions of deep squat exercises. Blood pressure measurements were taken before and after each activity, while physiological data was continuously recorded by our custom rings and periodically measured by commercial rings for comparison.
 ![Health Experiment](figures/healthExperiment.png)
 
-> **Data collection procedure across daily activities.** The protocol consists of five activity segments: (1) A 30-minute seated resting, (2) 5-minute sitting and talking, (3) 5-minute head movement, (4) 5-minute standing, and (5) 5-minute walking in place. Participants wore the oximeter, Ring 1 (reflective), Ring 2 (transmissive), and respiratory band throughout all activities.
+> 2. **Data collection procedure across daily activities.** The protocol consists of five activity segments: (1) A 30-minute seated resting, (2) 5-minute sitting and talking, (3) 5-minute head movement, (4) 5-minute standing, and (5) 5-minute walking in place. Participants wore the oximeter, Ring 1 (reflective), Ring 2 (transmissive), and respiratory band throughout all activities.
 ![Daily Experiment](figures/dailyExperiment.png)
 
+If you want to use your own data, please prepare it in the same format as our data, which should be npy format. 
 
-
-
-
-<!-- **Prevent pushing pyc files into Git**.
-```sh
-pip install pre-commit
-pre-commit install
-```
-1. **Installation**: To use RingTool, you need to install the required libraries and dependencies. You can do this by running the following command:
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. **Data Collection**: Put your data under the `data` folder. The data should be npy format. 
 ``` 
 data_daily.npy (data_sport.npydata_health.npy) 
 - subject
@@ -168,6 +159,49 @@ data_daily.npy (data_sport.npydata_health.npy)
   Experiment: Health, Daily, Sport
   Labels: start, end, label
 ```
-3. **Configuration**: Configure the parameters for data collection and analysis in the `config` folder. You can specify the Health metrics, and activity settings.
-4. **Train**: TODO
-5. **Evaluate**: TODO -->
+
+##  🧱 Contributing
+We welcome contributions to RingTool! If you have suggestions, bug reports, or feature requests, please open an issue or submit a pull request.
+
+Some example contributions include:
+* Adding new algorithms or models.
+* Improving documentation or examples.
+* Enhancing performance or usability.
+* Fixing bugs or issues.
+* Adding new datasets or benchmarks.
+* Improving the configuration system.
+
+### Add a new supervised model
+1. Create a new file in the [`nets`](nets) directory, e.g., `nets/new_model.py`.
+2. Append the new model registration to the [`constants/model.py`](constants/model.py) like below:
+
+```python
+from enum import Enum
+
+from nets.inception_time import InceptionTime
+from nets.mamba2 import RingToolMamba
+from nets.resnet import ResNet1D
+from nets.transformer import RingToolBERT
+
+# Import your new model
+from nets.new_model import NewModel  
+
+
+class SupportedSupervisedModels(Enum):
+    RESNET = "resnet"
+    INCEPTION_TIME = "inception_time"
+    TRANSFORMER = "transformer"
+    MAMBA2 = "mamba2"
+    NEW_MODEL = "new_model"  # Add your new model here
+
+
+MODEL_CLASSES = {
+    SupportedSupervisedModels.RESNET: ResNet1D,
+    SupportedSupervisedModels.INCEPTION_TIME: InceptionTime,
+    SupportedSupervisedModels.TRANSFORMER: RingToolBERT,
+    SupportedSupervisedModels.MAMBA2: RingToolMamba,
+    SupportedSupervisedModels.NEW_MODEL: NewModel,  # Add your new model here
+}
+```
+3. Add logic to the [`main.py`](main.py) to use the model in the following training and evaluation process.
+4. Add the model to the configuration files in the [`config`](config) directory. You can refer to the existing models for examples.
