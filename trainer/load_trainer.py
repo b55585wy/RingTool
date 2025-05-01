@@ -143,7 +143,7 @@ class SupervisedTrainer(BaseTrainer):
 
     def load_criterion(self):
         criterion_type = self.config["train"]["criterion"]
-        if criterion_type == "cross entropy":
+        if criterion_type == "cross_entropy":
             self.criterion = nn.CrossEntropyLoss()
         elif criterion_type == "mse":
             self.criterion = nn.MSELoss()
