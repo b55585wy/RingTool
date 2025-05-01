@@ -1,9 +1,92 @@
-![RingTool Logo](figures/RingTool-logo.png)
+<div align="center">
+  <img src="figures/RingTool-logo.png" alt="RingTool Logo" width="50%">
+</div>
 
 # 💍 RingTool
 RingTool is an open platform for health sensing and data analysis with smart rings. It processes raw **PPG** and **IMU** signals from ring sensors to estimate cardiovascular parameters (HR, RR, SpO2, BP). It offers configurable modules for data preprocessing, physics-based algorithms, supervised learning models (**ResNet**, **InceptionTime**, **Transformer**, **Mamba**), and systematic evaluation. The platform is designed to be flexible and extensible, allowing the community to build custom solutions for a wide range of health and wellness applications.
 
 ![RingTool System Overview](figures/structure.jpg)
+
+## 🗃️ Dataset
+> The complete dataset will be released upon acceptance of our paper.
+
+### Visualization
+Visualization of the ring signal and corresponding medical ground truth. Below is an example of the reflective ring (Ring 1)'s visualizations of the raw data for different activities. For more samples, please refer to the [visualizations](visualizations) folder.
+
+![Dataset Visualization](figures/00017_ring1_processed.png)
+
+
+### Data Collection
+Our data was collected from two certain protocols.
+
+> **Stimulus-evoked data collection procedure across physiological states.** The protocol consists of three main activities: (1) A 10-minute seated resting, (2) A 9-minute supervised low-oxygen simulation, and (3) Two 2-minute sessions of deep squat exercises. Blood pressure measurements were taken before and after each activity, while physiological data was continuously recorded by our custom rings and periodically measured by commercial rings for comparison.
+![Health Experiment](figures/healthExperiment.png)
+
+> **Data collection procedure across daily activities.** The protocol consists of five activity segments: (1) A 30-minute seated resting, (2) 5-minute sitting and talking, (3) 5-minute head movement, (4) 5-minute standing, and (5) 5-minute walking in place. Participants wore the oximeter, Ring 1 (reflective), Ring 2 (transmissive), and respiratory band throughout all activities.
+![Daily Experiment](figures/dailyExperiment.png)
+
+
+### Dataset Statistics
+Activity and reference label details in $\tau$-Ring dataset.
+| Activity               | Description                                                                       | Duration (hrs) |
+|------------------------|-----------------------------------------------------------------------------------|----------------|
+| All                    | Collective data from all activities listed below                                  | 28.21          |
+| Sitting                | Participant in stationary seated position                                         | 11.39          |
+| Talking                | Counting from one to one hundred repeatedly                                       | 0.93           |
+| Shaking Head           | Head rotation in various directions                                               | 0.94           |
+| Standing               | Participant in stationary standing position                                       | 0.93           |
+| Walking                | Walking in place with natural arm swinging                                        | 0.91           |
+| Low Oxygen Simulation  | Wearing mask with low-oxygen gas to simulate hypoxemia                            | 4.08           |
+| Deep Squat             | Full range of motion squat exercise                                               | 1.61           |
+| Others                 | User study preparation, device synchronization, blood pressure measurement and other situations not recorded with rings | 9.26           |
+
+
+| Label   | Description                           | Mean&plusmn;STD        | Range (Min, Max)      | Count   |
+|---------|---------------------------------------|----------------------|-----------------------|---------|
+| BVP     | Blood Volume Pulse signal samples     | -                    | -                     | 1664446 |
+| Resp    | Respiratory waveform samples          | -                    | -                     | 3953694 |
+| HR      | Heart Rate measurements               | 80.24&plusmn;12.39 BPM | (26.03, 125.93) BPM   | 76586   |
+| RR      | Respiratory Rate calculated from Resp | 17.28&plusmn;4.55 BPM  | (6.04, 29.86) BPM     | 4205    |
+| SpO2    | Blood Oxygen Saturation measurements  | 96.33&plusmn;2.46 %   | (78.97, 99.00) %      | 76575   |
+| SBP     | Systolic Blood Pressure measurements  | 106.85&plusmn;16.29 mmHg| (78.00, 142.00) mmHg  | 112     |
+| DBP     | Diastolic Blood Pressure measurements | 65.85&plusmn;9.41 mmHg | (43.00, 96.00) mmHg   | 112     |
+| Samsung | Samsung Galaxy Ring HR measurements   | 92.59&plusmn;23.61 BPM | (50.00, 153.00) BPM   | 128     |
+| Oura    | Oura Gen 3 Ring HR measurements       | 89.67&plusmn;22.32 BPM | (36.00, 155.00) BPM   | 118     |
+
+
+Medical Ground Distribution of HR, RR, SpO2, and BP
+![Medical Ground Distribution](figures/distribution.png)
+
+
+### Prepare Your Own Data
+You can follow our data collection protocol to build your own ring-based dataset. To ensure compatibility with our pipeline, your dataset should follow the same format --- a directory containing  `.pkl` files organized as shown below:
+
+``` 
+rings/
+  └── subject_ringtype.pkl
+      ├── id, start, end, fs
+      ├── ir, red, ax, ay, az, bvp, resp (np.array)
+      ├── hr, resp_rr, spo2, samsung_hr, oura_hr, BP_sys, BP_dia (numeric)
+      ├── Experiment, Label (string)
+```
+Each `.pkl` file contains multi-modal physiological data collected from smart rings. Sensor signals (ir, red, ax, ay, az, bvp, resp) are stored as np.array, while other entries (e.g., hr, spo2, BP_sys, Label) are scalar values or strings. Data is synchronized and annotated with timestamps.
+
+
+## 📊 Benchmark
+For each parameter, we compare both physics-based and supervised learning approaches, examining the performance differences between reflective (Ring 1) and transmissive (Ring 2) sensing modalities across various user activities and physiological states. The best results for each task are summarized in the below table.
+
+| Task | Method / Ring | MAE | RMSE | MAPE | Pearson | Method / Ring | MAE | RMSE | MAPE | Pearson |
+|------|---------------|------------|-------------|-------------|----------------|---------------|------------|-------------|-------------|----------------|
+|      | **Ring 1 (Reflective)**|            |             |             |                | **Ring 2 (Transmissive)**|          |             |             |                |
+| HR   | ResNet        | 5.18       | 8.96        | 6.99        | 0.73           | ResNet        | 8.09       | 11.51       | 10.49       | 0.37           |
+| RR   | Peak          | 2.98       | 4.12        | 18.39       | 0.50           | Mamba         | 3.30       | 4.28        | 21.20       | 0.13           |
+| SpO2 | ResNet        | 3.22       | 4.46        | 3.57        | 0.01           | Ratio         | 3.31       | 3.95        | 3.58        | 0.28           |
+| SBP  | Transformer   | 13.33      | 16.10       | 12.53       | 0.25           | Mamba         | 14.56      | 17.76       | 13.79       | 0.09           |
+| DBP  | Transformer   | 7.56       | 9.80        | 11.80       | -0.02          | Transformer   | 8.06       | 10.54       | 12.57       | -0.15          |
+
+_For all cardiovascular parameters: MAE = Mean Absolute Error (HR/RR: BPM, BP: mmHg, SpO2: %), RMSE = Root Mean Square Error (HR/RR: BPM, BP: mmHg, SpO2: %), MAPE = Mean Absolute Percentage Error (%), Pearson = Pearson Correlation Coefficient_
+
+
 
 ## ✨ Features
 ### ⚙️ Toolkit Configuration
@@ -129,41 +212,6 @@ python3 main.py --data-path <replace-with-your-data-path> --config config/superv
 
 If you want to integrate Slack bot notifications, you can add the `--send-notification-slack` argument to the command. This will send notifications to a specified Slack channel when the training ends. See Also [How to slack training bot](notifications/README.md).
 
-
-## 📊 Dataset
-Visualization of ring signal and corresponding medical ground truth.
-
-![Dataset Visualization](figures/00017_ring1_processed.png)
-
-
-Our data was collected from two certain protocols.
-
-> **Stimulus-evoked data collection procedure across physiological states.** The protocol consists of three main activities: (1) A 10-minute seated resting, (2) A 9-minute supervised low-oxygen simulation, and (3) Two 2-minute sessions of deep squat exercises. Blood pressure measurements were taken before and after each activity, while physiological data was continuously recorded by our custom rings and periodically measured by commercial rings for comparison.
-![Health Experiment](figures/healthExperiment.png)
-
-> **Data collection procedure across daily activities.** The protocol consists of five activity segments: (1) A 30-minute seated resting, (2) 5-minute sitting and talking, (3) 5-minute head movement, (4) 5-minute standing, and (5) 5-minute walking in place. Participants wore the oximeter, Ring 1 (reflective), Ring 2 (transmissive), and respiratory band throughout all activities.
-![Daily Experiment](figures/dailyExperiment.png)
-
-If you want to use your own data, please prepare it in the same format as our data, which should be npy format. 
-
-``` 
-data_daily.npy (data_sport.npydata_health.npy) 
-- subject
-  ring1: timestamp,green,ir,red,ax,ay,az
-  ring2: timestamp,green,ir,red,ax,ay,az
-  bvp: timestamp,bvp
-  hr: timestamp,hr
-  spo2: timestamp,spo2
-  resp: timestamp,resp
-  ecg: timestamp,ecg
-  ecg_hr: timestamp,ecg_hr
-  ecg_rr: timestamp,ecg_rr
-  samsung: timestamp,hr
-  oura: start, end, hr
-  BP: start, end,sys,dia
-  Experiment: Health, Daily, Sport
-  Labels: start, end, label
-```
 
 ##  🧱 Contributing
 We welcome contributions to RingTool! If you have suggestions, bug reports, or feature requests, please open an issue or submit a pull request.
