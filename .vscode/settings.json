@@ -6,6 +6,7 @@
     "python.testing.pytestEnabled": true,
     "cSpell.words": [
         "cooldown",
+        "CUDA",
         "deepsquat",
         "nohup",
         "oura",
