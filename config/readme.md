@@ -24,9 +24,9 @@ The configuration file is divided into several sections, each with its own purpo
 
 **`seed`**: The random seed to be used for training and testing. This is used to ensure that the results are reproducible. The default value is 42.
 
-**`csv_path`**: The path to the CSV file containing the dataset.
+**`csv_path`**: The path to the output CSV files. The current logic doesn't allow customization yet.
 
-**`img_path`**: The path to the directory where the images will be saved.
+**`img_path`**: The path to the directory where the images will be saved. The current logic doesn't allow customization yet.
 
 **`method`**: This section contains the configuration for the supervised learning method. For `name` field, you can choose from `["resnet", "transformer", "mamba2", "inception_time"]`. For `type` field, you can choose from `["ML", "unsupervised"]`. The `model_path` is the path to the pre-trained model. The `params` section contains the parameters for model initialization. Please refer to the model's `__init__(self)` function for detailed parameters. The `params` section is different for each model. For now, RingTool will not check the correctness of the parameters. So please make sure that the parameters are well matched with the model.
 
