@@ -22,41 +22,7 @@ from notifications.slack import (
     setup_slack,
 )
 from trainer.load_trainer import load_trainer
-from utils.utils import calculate_avg_metrics, save_metrics_to_csv
-
-
-def save_detailed_predictions(preds_and_targets: Tuple, config: Dict, task: str, fold: str):
-    """Save detailed prediction pairs to CSV file"""
-    predictions, targets = preds_and_targets
-    exp_name = config.get("exp_name", "unknown")
-    
-    predictions_dir = os.path.join("predictions", exp_name)
-    os.makedirs(predictions_dir, exist_ok=True)
-    
-    # Construct DataFrame with predictions, targets, and metadata
-    data = {
-        'prediction': predictions.detach().cpu().numpy().flatten().tolist(),
-        'target': targets.detach().cpu().numpy().flatten().tolist(),
-        'task': [task] * len(predictions),
-        'fold': [fold] * len(predictions),
-        'exp_name': [exp_name] * len(predictions)
-    }
-    
-    df_new = pd.DataFrame(data)
-    csv_path = os.path.join(predictions_dir, f"{fold}.csv")
-    
-    # Append to existing file or create new one
-    if os.path.exists(csv_path):
-        existing_df = pd.read_csv(csv_path)
-        # Remove previous predictions for this task before appending
-        if 'task' in existing_df.columns:
-            existing_df = existing_df[existing_df['task'] != task]
-        df_combined = pd.concat([existing_df, df_new], ignore_index=True)
-        df_combined.to_csv(csv_path, index=False)
-        logging.info(f"Saved {len(df_new)} predictions for {task} to {csv_path} (total: {len(df_combined)})")
-    else:
-        df_new.to_csv(csv_path, index=False)
-        logging.info(f"Saved {len(df_new)} predictions for {task} to {csv_path}")
+from utils.utils import calculate_avg_metrics, save_metrics_to_csv, save_prediction_pairs_detailed
 
 
 def generate_split_config(mode: str, split: Dict) -> List[Dict]:
@@ -279,7 +245,18 @@ def supervised(config: Dict, data_path: str) -> List[Tuple[str, str, Dict]]:
             
             # Save prediction pairs when --save-predictions flag is enabled
             if config.get('_save_predictions_', False):
-                save_detailed_predictions(preds_and_targets, config, task, split_config["fold"])
+                exp_name = config.get("exp_name", "unknown")
+                csv_path = os.path.join("predictions", exp_name, f"{split_config['fold']}.csv")
+                preds, targets = preds_and_targets
+                save_prediction_pairs_detailed(
+                    preds=preds,
+                    targets=targets,
+                    save_path=csv_path,
+                    metadata=None,  # main.py doesn't collect metadata
+                    task=task,
+                    fold=split_config["fold"],
+                    exp_name=exp_name
+                )
 
         metrics = calculate_avg_metrics(all_preds_and_targets)
         logging.critical(f"Average metrics across all tasks: "

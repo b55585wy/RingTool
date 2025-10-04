@@ -15,7 +15,7 @@ import logging
 sys.path.insert(0, '/root/RingTool')
 
 from nets.load_model import load_model
-from utils.utils import calculate_metrics
+from utils.utils import calculate_metrics, save_prediction_pairs_detailed
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -122,33 +122,18 @@ def test_model_with_metadata(model, test_loader, checkpoint_path, device):
 
 
 def save_predictions(predictions, targets, metadata_list, exp_name, task, fold):
-    predictions_dir = BASE_DIR / "predictions" / exp_name
-    predictions_dir.mkdir(parents=True, exist_ok=True)
-    
-    data = {
-        'prediction': predictions.detach().cpu().numpy().flatten().tolist(),
-        'target': targets.detach().cpu().numpy().flatten().tolist(),
-        'subject_id': [m['subject_id'] for m in metadata_list],
-        'scenario': [m['scenario'] for m in metadata_list],
-        'start_time': [m['start_time'] for m in metadata_list],
-        'end_time': [m['end_time'] for m in metadata_list],
-        'task': [task] * len(metadata_list),
-        'exp_name': [exp_name] * len(metadata_list)
-    }
-    
-    df_new = pd.DataFrame(data)
-    csv_path = predictions_dir / f"{fold}.csv"
-    
-    if csv_path.exists():
-        existing_df = pd.read_csv(csv_path)
-        if task in existing_df['task'].values:
-            existing_df = existing_df[existing_df['task'] != task]
-        df_combined = pd.concat([existing_df, df_new], ignore_index=True)
-        df_combined.to_csv(csv_path, index=False)
-        logging.info(f"✓ Saved {len(df_new)} {task} (total: {len(df_combined)})")
-    else:
-        df_new.to_csv(csv_path, index=False)
-        logging.info(f"✓ Saved {len(df_new)} {task}")
+    """Save predictions using unified function from utils.py"""
+    csv_path = BASE_DIR / "predictions" / exp_name / f"{fold}.csv"
+    save_prediction_pairs_detailed(
+        preds=predictions,
+        targets=targets,
+        save_path=str(csv_path),
+        metadata=metadata_list,
+        task=task,
+        fold=fold,
+        exp_name=exp_name
+    )
+    logging.info(f"✓ Saved {len(predictions)} {task} predictions to {csv_path.name}")
 
 
 if __name__ == '__main__':
