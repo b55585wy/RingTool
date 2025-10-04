@@ -25,6 +25,40 @@ from trainer.load_trainer import load_trainer
 from utils.utils import calculate_avg_metrics, save_metrics_to_csv
 
 
+def save_detailed_predictions(preds_and_targets: Tuple, config: Dict, task: str, fold: str):
+    """Save detailed prediction pairs to CSV file"""
+    predictions, targets = preds_and_targets
+    exp_name = config.get("exp_name", "unknown")
+    
+    predictions_dir = os.path.join("predictions", exp_name)
+    os.makedirs(predictions_dir, exist_ok=True)
+    
+    # Construct DataFrame with predictions, targets, and metadata
+    data = {
+        'prediction': predictions.detach().cpu().numpy().flatten().tolist(),
+        'target': targets.detach().cpu().numpy().flatten().tolist(),
+        'task': [task] * len(predictions),
+        'fold': [fold] * len(predictions),
+        'exp_name': [exp_name] * len(predictions)
+    }
+    
+    df_new = pd.DataFrame(data)
+    csv_path = os.path.join(predictions_dir, f"{fold}.csv")
+    
+    # Append to existing file or create new one
+    if os.path.exists(csv_path):
+        existing_df = pd.read_csv(csv_path)
+        # Remove previous predictions for this task before appending
+        if 'task' in existing_df.columns:
+            existing_df = existing_df[existing_df['task'] != task]
+        df_combined = pd.concat([existing_df, df_new], ignore_index=True)
+        df_combined.to_csv(csv_path, index=False)
+        logging.info(f"Saved {len(df_new)} predictions for {task} to {csv_path} (total: {len(df_combined)})")
+    else:
+        df_new.to_csv(csv_path, index=False)
+        logging.info(f"Saved {len(df_new)} predictions for {task} to {csv_path}")
+
+
 def generate_split_config(mode: str, split: Dict) -> List[Dict]:
     split_config = []
     # 5-fold cross-validation.
@@ -242,6 +276,10 @@ def supervised(config: Dict, data_path: str) -> List[Tuple[str, str, Dict]]:
             all_preds_and_targets.append(preds_and_targets)
 
             all_test_results.append((split_config["fold"], task, test_results))
+            
+            # Save prediction pairs when --save-predictions flag is enabled
+            if config.get('_save_predictions_', False):
+                save_detailed_predictions(preds_and_targets, config, task, split_config["fold"])
 
         metrics = calculate_avg_metrics(all_preds_and_targets)
         logging.critical(f"Average metrics across all tasks: "
@@ -339,6 +377,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='RingTool.')
     parser.add_argument('--data-path', type=str, default=None, help='Path to the data folder.')
     parser.add_argument('--send-notification-slack', action="store_true", help='Send notification to slack.')
+    parser.add_argument('--save-predictions', action="store_true", help='Save detailed prediction pairs to predictions directory.')
 
     # --- Group for mutually exclusive config options ---
     group = parser.add_mutually_exclusive_group(required=False) # Make the group itself not strictly required initially
@@ -358,6 +397,7 @@ if __name__ == '__main__':
     batch_configs_dirs = args.batch_configs_dirs # This will be a list of paths or None
     single_config_path = args.config
     send_notification_slack = args.send_notification_slack
+    save_predictions = args.save_predictions
 
     config_files_to_run = []
 
@@ -414,6 +454,7 @@ if __name__ == '__main__':
                 
                 # Add config path to config dict for potential logging inside do_run_experiment
                 config['_config_path_'] = config_file_path 
+                config['_save_predictions_'] = save_predictions  # Pass flag to experiment
                 
                 do_run_experiment(config, data_path, send_notification_slack)
                 
